@@ -1,0 +1,4 @@
+prunatic_web:
+    resource: "@PrunaticWebBundle/Resources/config/routing.yml"
+    prefix:   /
+
