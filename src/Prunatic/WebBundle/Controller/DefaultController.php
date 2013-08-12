@@ -15,4 +15,9 @@ class DefaultController extends Controller
     {
         return $this->render('PrunaticWebBundle:Default:legal.html.twig');
     }
+
+    public function faqAction()
+    {
+        return $this->render('PrunaticWebBundle:Default:faq.html.twig');
+    }
 }

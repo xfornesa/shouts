@@ -6,6 +6,10 @@ prunatic_web_legal:
     pattern:  /avis-legal.html
     defaults: { _controller: PrunaticWebBundle:Default:legal }
 
+prunatic_web_faq:
+    pattern:  /preguntes-frequents.html
+    defaults: { _controller: PrunaticWebBundle:Default:faq }
+
 prunatic_shout_create:
     pattern:  /afegir-un-crit.html
     defaults: { _controller: PrunaticWebBundle:Shout:create }
