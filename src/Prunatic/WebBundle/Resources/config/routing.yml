@@ -1,3 +1,17 @@
 prunatic_web_homepage:
-    pattern:  /hello/{name}
+    pattern:  /
     defaults: { _controller: PrunaticWebBundle:Default:index }
+
+prunatic_web_legal:
+    pattern:  /avis-legal.html
+    defaults: { _controller: PrunaticWebBundle:Default:legal }
+
+prunatic_shout_create:
+    pattern:  /afegir-un-crit.html
+    defaults: { _controller: PrunaticWebBundle:Shout:create }
+
+prunatic_shout_show:
+    pattern:  /crit-{id}.html
+    defaults: { _controller: PrunaticWebBundle:Shout:show }
+    requirements:
+        id:  \d+
