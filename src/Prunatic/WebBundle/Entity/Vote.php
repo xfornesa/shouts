@@ -16,7 +16,7 @@ class Vote
     /**
      * @var integer
      *
-     * @ORM\Column(name="id", type="integer", columnDefinition="INT UNSIGNED")
+     * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
@@ -26,7 +26,7 @@ class Vote
      * @var Shout
      *
      * @ORM\ManyToOne(targetEntity="Shout")
-     * @ORM\JoinColumn(name="shout_id", referencedColumnName="id", columnDefinition="INT UNSIGNED")
+     * @ORM\JoinColumn(name="shout_id", referencedColumnName="id")
      */
     private $shout;
 

@@ -16,7 +16,7 @@ class Shout
     /**
      * @var integer
      *
-     * @ORM\Column(name="id", type="integer", columnDefinition="INT UNSIGNED")
+     * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
@@ -25,7 +25,7 @@ class Shout
     /**
      * @var string
      *
-     * @ORM\Column(name="author", type="string", length=255)
+     * @ORM\Column(name="author", type="string", length=255, nullable=true)
      */
     private $author;
 
@@ -39,28 +39,28 @@ class Shout
     /**
      * @var string
      *
-     * @ORM\Column(name="message", type="text")
+     * @ORM\Column(name="message", type="text", nullable=true)
      */
     private $message;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="image", type="string", length=255)
+     * @ORM\Column(name="image", type="string", length=255, nullable=true)
      */
     private $image;
 
     /**
      * @var float
      *
-     * @ORM\Column(name="latitude", type="decimal", precision=11, scale=8)
+     * @ORM\Column(name="latitude", type="decimal", precision=11, scale=8, nullable=true)
      */
     private $latitude;
 
     /**
      * @var float
      *
-     * @ORM\Column(name="longitude", type="decimal", precision=11, scale=8)
+     * @ORM\Column(name="longitude", type="decimal", precision=11, scale=8, nullable=true)
      */
     private $longitude;
 
