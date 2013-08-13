@@ -6,6 +6,7 @@
 namespace Prunatic\WebBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 use InvalidArgumentException;
@@ -286,6 +287,7 @@ class Shout
 
     /**
      * Return if the shout has been voted previously from a given IP
+     *
      * @param string $ip
      * @return boolean
      */
@@ -321,7 +323,7 @@ class Shout
     /**
      * Get votes
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return Collection
      */
     public function getVotes()
     {
@@ -350,6 +352,7 @@ class Shout
 
     /**
      * Return if the shout has been reported previously from a given IP
+     *
      * @param string $ip
      * @return boolean
      */
@@ -385,7 +388,7 @@ class Shout
     /**
      * Get reports
      *
-     * @return \Doctrine\Common\Collections\Collection
+     * @return Collection
      */
     public function getReports()
     {
