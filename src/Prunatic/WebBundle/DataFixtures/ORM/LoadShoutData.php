@@ -14,22 +14,26 @@ class LoadShoutData implements FixtureInterface
      */
     public function load(ObjectManager $manager)
     {
-        $shout = new Shout();
-        $shout->setEmail('xfornesa@gmail.com');
-        $shout->setAuthor('Xavier');
-        $shout->setMessage('INDEPENDÈNCIA!!!');
-        $shout->addVote(new Vote());
-        $manager->persist($shout);
-
-        $shout = new Shout();
-        $shout->setEmail('margagrimal@hotmail.com');
-        $shout->setAuthor('Marga');
-        $shout->setMessage('VISCA CATALUNYA INDEPENDENT!!!');
-        $shout->addVote(new Vote());
-        $shout->addVote(new Vote());
-        $shout->addVote(new Vote());
-        $manager->persist($shout);
-
+        $messages = array(
+            'Independència!!!',
+            'Visca Catalunya independent!!!',
+            'Catalunya és més que una nació!',
+            'Catalunya is not Spain',
+            'Hi han dos tipus de persones, els catalans i els que ho voldrien ser'
+        );
+        for ($i=0; $i<15; $i++) {
+            $shout = new Shout();
+            $shout->setEmail(sprintf('email.%s@elmeucrit.cat', $i));
+            $shout->setAuthor(sprintf('Author %s', $i));
+            $shout->setMessage($messages[rand(0, count($messages)-1)]);
+            $shout->setLongitude(41.536691 * rand(0.001, 0.009));
+            $shout->setLatitude(2.443804 * rand(0.001, 0.009));
+            $numVotes =  rand(0, 10);
+            for ($j=0; $j<$numVotes; $j++) {
+                $shout->addVote(new Vote());
+            }
+            $manager->persist($shout);
+        }
         $manager->flush();
     }
 }
