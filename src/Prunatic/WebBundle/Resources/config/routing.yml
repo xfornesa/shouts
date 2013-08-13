@@ -19,3 +19,13 @@ prunatic_shout_show:
     defaults: { _controller: PrunaticWebBundle:Shout:show }
     requirements:
         id:  \d+
+
+prunatic_shout_report:
+    pattern:  /reportar-crit-inapropiat.html
+    defaults: { _controller: PrunaticWebBundle:Shout:report }
+    methods: POST
+
+prunatic_shout_vote:
+    pattern:  /votar-per-un-crit.html
+    defaults: { _controller: PrunaticWebBundle:Shout:vote }
+    methods: POST
