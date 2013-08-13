@@ -8,6 +8,7 @@ namespace Prunatic\WebBundle\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
+use InvalidArgumentException;
 use Prunatic\WebBundle\Entity\Report;
 use Prunatic\WebBundle\Entity\Vote;
 
@@ -22,9 +23,9 @@ class Shout
 {
     const MIN_REPORTS = 2;
 
-    const STATUS_NEW = 0;
-    const STATUS_APPROVED = 1;
-    const STATUS_INAPPROPRIATE = 2;
+    const STATUS_NEW = 'new';
+    const STATUS_APPROVED = 'approved';
+    const STATUS_INAPPROPRIATE = 'inappropriate';
 
     /**
      * @var integer
@@ -34,6 +35,13 @@ class Shout
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="status", type="string", columnDefinition="ENUM('new', 'approved', 'inappropriate')")
+     */
+    private $status;
 
     /**
      * @var string
@@ -104,6 +112,7 @@ class Shout
     public function __construct()
     {
         $this->votes = new ArrayCollection();
+        $this->status = self::STATUS_NEW;
     }
 
     /**
@@ -257,11 +266,18 @@ class Shout
     /**
      * Add votes
      *
-     * @param \Prunatic\WebBundle\Entity\Vote $votes
+     * @param Vote $votes
+     * @throws DuplicateIpException
      * @return Shout
      */
-    public function addVote(\Prunatic\WebBundle\Entity\Vote $votes)
+    public function addVote(Vote $votes)
     {
+        // avoid more than one vote from the same IP
+        $ip = $votes->getIp();
+        if ($this->hasBeenVotedFromIp($ip)) {
+            throw new DuplicateIpException(sprintf('There is a previous vote from the same IP.', $ip));
+        }
+
         $this->votes[] = $votes;
         $votes->setShout($this);
     
@@ -269,13 +285,37 @@ class Shout
     }
 
     /**
+     * Return if the shout has been voted previously from a given IP
+     * @param string $ip
+     * @return boolean
+     */
+    public function hasBeenVotedFromIp($ip)
+    {
+        if (empty($this->votes))
+            return false;
+        $ip = ip2long($ip);
+        foreach($this->votes as $vote) {
+            $voteIp = $vote->getIp();
+            $voteIp = ip2long($voteIp);
+            if ($ip === $voteIp) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Remove votes
      *
-     * @param \Prunatic\WebBundle\Entity\Vote $votes
+     * @param Vote $votes
+     * @return Shout
      */
-    public function removeVote(\Prunatic\WebBundle\Entity\Vote $votes)
+    public function removeVote(Vote $votes)
     {
         $this->votes->removeElement($votes);
+
+        return $this;
     }
 
     /**
@@ -291,11 +331,17 @@ class Shout
     /**
      * Add reports
      *
-     * @param \Prunatic\WebBundle\Entity\Report $reports
+     * @param Report $reports
+     * @throws DuplicateIpException
      * @return Shout
      */
-    public function addReport(\Prunatic\WebBundle\Entity\Report $reports)
+    public function addReport(Report $reports)
     {
+        // avoid more than one report with the same IP
+        $ip = $reports->getIp();
+        if ($this->hasBeenReportedFromIp($ip)) {
+            throw new DuplicateIpException(sprintf('There is a previous report from the same IP.', $ip));
+        }
         $this->reports[] = $reports;
         $reports->setShout($this);
 
@@ -303,13 +349,37 @@ class Shout
     }
 
     /**
+     * Return if the shout has been reported previously from a given IP
+     * @param string $ip
+     * @return boolean
+     */
+    public function hasBeenReportedFromIp($ip)
+    {
+        if (empty($this->reports))
+            return false;
+        $ip = ip2long($ip);
+        foreach($this->reports as $report) {
+            $reportIp = $report->getIp();
+            $reportIp = ip2long($reportIp);
+            if ($ip === $reportIp) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Remove reports
      *
-     * @param \Prunatic\WebBundle\Entity\Report $reports
+     * @param Report $reports
+     * @return Shout
      */
-    public function removeReport(\Prunatic\WebBundle\Entity\Report $reports)
+    public function removeReport(Report $reports)
     {
         $this->reports->removeElement($reports);
+
+        return $this;
     }
 
     /**
@@ -367,10 +437,51 @@ class Shout
 
         $reports = $this->getReports();
         if (count($reports) >= self::MIN_REPORTS) {
-            // TODO mark the shout as inappropriate to avoid showing again
-            //$this->setStatus(self::STATUS_INAPPROPRIATE);
+            $this->setStatus(self::STATUS_INAPPROPRIATE);
         }
 
         return $this;
+    }
+
+    /**
+     * Add a vote to the shout
+     *
+     * @param integer|string $ip
+     * @return Shout
+     */
+    public function vote($ip)
+    {
+        $vote = new Vote();
+        $vote->setIp($ip);
+        $this->addVote($vote);
+
+        return $this;
+    }
+
+    /**
+     * Set status
+     *
+     * @param string $status
+     * @return Shout
+     * @throws InvalidArgumentException
+     */
+    public function setStatus($status)
+    {
+        if (!in_array($status, array(self::STATUS_NEW, self::STATUS_APPROVED, self::STATUS_INAPPROPRIATE))) {
+            throw new InvalidArgumentException("Invalid status");
+        }
+        $this->status = $status;
+    
+        return $this;
+    }
+
+    /**
+     * Get status
+     *
+     * @return string 
+     */
+    public function getStatus()
+    {
+        return $this->status;
     }
 }

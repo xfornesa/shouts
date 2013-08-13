@@ -10,6 +10,7 @@ use Prunatic\WebBundle\Entity\Vote;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ShoutController extends Controller
 {
@@ -85,7 +86,7 @@ class ShoutController extends Controller
     /**
      * @param $id
      * @return Shout
-     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     * @throws NotFoundHttpException
      */
     private function getShoutOrNotFoundException($id)
     {
