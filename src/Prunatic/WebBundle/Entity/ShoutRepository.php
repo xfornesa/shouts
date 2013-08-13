@@ -1,4 +1,7 @@
 <?php
+/**
+ * Author: Xavier
+ */
 
 namespace Prunatic\WebBundle\Entity;
 

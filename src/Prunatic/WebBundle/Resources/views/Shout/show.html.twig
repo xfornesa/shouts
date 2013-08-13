@@ -4,4 +4,16 @@
     <h1>El meu crit per la independència</h1>
     <p>Autor: {{ shout.author }}</p>
     <p>Vots: {{ shout.votes | length }}</p>
+    <ul>
+        {% for vote in shout.votes %}
+            <li>Data: {{ vote.created | date }}. IP: {{ vote.ip }}</li>
+        {% endfor %}
+    </ul>
+
+    <p>Reports: {{ shout.reports | length }}</p>
+    <ul>
+        {% for report in shout.reports %}
+            <li>Data: {{ report.created | date }}. IP: {{ report.ip }}</li>
+        {% endfor %}
+    </ul>
 {% endblock %}

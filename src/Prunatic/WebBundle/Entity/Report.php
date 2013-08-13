@@ -9,13 +9,13 @@ use Prunatic\WebBundle\Entity\Shout;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Vote
+ * Report
  *
  * @ORM\Table()
  * @ORM\Entity
  * @ORM\HasLifecycleCallbacks
  */
-class Vote
+class Report
 {
     /**
      * @var integer
@@ -29,7 +29,7 @@ class Vote
     /**
      * @var Shout
      *
-     * @ORM\ManyToOne(targetEntity="Shout", inversedBy="votes")
+     * @ORM\ManyToOne(targetEntity="Shout", inversedBy="reports")
      * @ORM\JoinColumn(name="shout_id", referencedColumnName="id")
      */
     private $shout;
@@ -59,7 +59,6 @@ class Vote
             $this->setCreated($created);
     }
 
-
     /**
      * Get id
      *
@@ -74,7 +73,7 @@ class Vote
      * Set created
      *
      * @param \DateTime $created
-     * @return Vote
+     * @return Report
      */
     public function setCreated($created)
     {
@@ -97,7 +96,7 @@ class Vote
      * Set ip
      *
      * @param integer|string $ip
-     * @return Vote
+     * @return Report
      */
     public function setIp($ip)
     {
@@ -127,7 +126,7 @@ class Vote
      * Set shout
      *
      * @param Shout $shout
-     * @return Vote
+     * @return Report
      */
     public function setShout(Shout $shout = null)
     {

@@ -1,9 +1,15 @@
 <?php
+/**
+ * Author: Xavier
+ */
 
 namespace Prunatic\WebBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+
+use Prunatic\WebBundle\Entity\Report;
+use Prunatic\WebBundle\Entity\Vote;
 
 /**
  * Shout
@@ -14,6 +20,12 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Shout
 {
+    const MIN_REPORTS = 2;
+
+    const STATUS_NEW = 0;
+    const STATUS_APPROVED = 1;
+    const STATUS_INAPPROPRIATE = 2;
+
     /**
      * @var integer
      *
@@ -71,6 +83,13 @@ class Shout
      * @ORM\OneToMany(targetEntity="Vote", mappedBy="shout", cascade={"persist", "remove"}, orphanRemoval=true)
      */
     private $votes;
+
+    /**
+     * @var ArrayCollection
+     *
+     * @ORM\OneToMany(targetEntity="Report", mappedBy="shout", cascade={"persist", "remove"}, orphanRemoval=true)
+     */
+    private $reports;
 
     /**
      * @var \DateTime
@@ -268,11 +287,46 @@ class Shout
     {
         return $this->votes;
     }
+
+    /**
+     * Add reports
+     *
+     * @param \Prunatic\WebBundle\Entity\Report $reports
+     * @return Shout
+     */
+    public function addReport(\Prunatic\WebBundle\Entity\Report $reports)
+    {
+        $this->reports[] = $reports;
+        $reports->setShout($this);
+
+        return $this;
+    }
+
+    /**
+     * Remove reports
+     *
+     * @param \Prunatic\WebBundle\Entity\Report $reports
+     */
+    public function removeReport(\Prunatic\WebBundle\Entity\Report $reports)
+    {
+        $this->reports->removeElement($reports);
+    }
+
+    /**
+     * Get reports
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getReports()
+    {
+        return $this->reports;
+    }
+
     /**
      * Set created
      *
      * @param \DateTime $created
-     * @return Vote
+     * @return Shout
      */
     public function setCreated($created)
     {
@@ -297,5 +351,26 @@ class Shout
     public function doStuffOnPrePersist()
     {
         $this->created = new \DateTime();
+    }
+
+    /**
+     * Report a shout as inappropriate
+     *
+     * @param integer|string $ip
+     * @return Shout
+     */
+    public function reportInappropriate($ip)
+    {
+        $report = new Report();
+        $report->setIp($ip);
+        $this->addReport($report);
+
+        $reports = $this->getReports();
+        if (count($reports) >= self::MIN_REPORTS) {
+            // TODO mark the shout as inappropriate to avoid showing again
+            //$this->setStatus(self::STATUS_INAPPROPRIATE);
+        }
+
+        return $this;
     }
 }

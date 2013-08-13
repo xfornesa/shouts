@@ -1,4 +1,7 @@
 <?php
+/**
+ * Author: Xavier
+ */
 
 namespace Prunatic\WebBundle\DataFixtures\ORM;
 
@@ -21,17 +24,28 @@ class LoadShoutData implements FixtureInterface
             'Catalunya is not Spain',
             'Hi han dos tipus de persones, els catalans i els que ho voldrien ser'
         );
+        $reportIp = gethostbyname('localhost');
+
         for ($i=0; $i<15; $i++) {
             $shout = new Shout();
+            // basic fields
             $shout->setEmail(sprintf('email.%s@elmeucrit.cat', $i));
             $shout->setAuthor(sprintf('Author %s', $i));
             $shout->setMessage($messages[rand(0, count($messages)-1)]);
             $shout->setLongitude(41.536691 * rand(0.001, 0.009));
             $shout->setLatitude(2.443804 * rand(0.001, 0.009));
+            // votes
             $numVotes =  rand(0, 10);
             for ($j=0; $j<$numVotes; $j++) {
-                $shout->addVote(new Vote());
+
+                $shout->addVote(new Vote($reportIp));
             }
+            // reports
+            $numReports =  rand(0, 3 * rand(0, 1));
+            for ($j=0; $j<$numReports; $j++) {
+                $shout->reportInappropriate($reportIp);
+            }
+            // persist the shout
             $manager->persist($shout);
         }
         $manager->flush();
