@@ -2,6 +2,7 @@
 
 namespace Prunatic\WebBundle\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -15,7 +16,7 @@ class Shout
     /**
      * @var integer
      *
-     * @ORM\Column(name="id", type="integer")
+     * @ORM\Column(name="id", type="integer", columnDefinition="INT UNSIGNED")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
@@ -63,6 +64,20 @@ class Shout
      */
     private $longitude;
 
+    /**
+     * @var ArrayCollection
+     *
+     * @ORM\OneToMany(targetEntity="Vote", mappedBy="shout")
+     */
+    private $votes;
+
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->votes = new \Doctrine\Common\Collections\ArrayCollection();
+    }
 
     /**
      * Get id
@@ -210,5 +225,38 @@ class Shout
     public function getLongitude()
     {
         return $this->longitude;
+    }
+
+    /**
+     * Add votes
+     *
+     * @param \Prunatic\WebBundle\Entity\Vote $votes
+     * @return Shout
+     */
+    public function addVote(\Prunatic\WebBundle\Entity\Vote $votes)
+    {
+        $this->votes[] = $votes;
+    
+        return $this;
+    }
+
+    /**
+     * Remove votes
+     *
+     * @param \Prunatic\WebBundle\Entity\Vote $votes
+     */
+    public function removeVote(\Prunatic\WebBundle\Entity\Vote $votes)
+    {
+        $this->votes->removeElement($votes);
+    }
+
+    /**
+     * Get votes
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getVotes()
+    {
+        return $this->votes;
     }
 }
