@@ -2,4 +2,6 @@
 
 {% block body %}
     <h1>El meu crit per la independència</h1>
+    <p>Autor: {{ shout.author }}</p>
+    <p>Vots: {{ shout.votes | length }}</p>
 {% endblock %}

@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table()
  * @ORM\Entity(repositoryClass="Prunatic\WebBundle\Entity\ShoutRepository")
+ * @ORM\HasLifecycleCallbacks
  */
 class Shout
 {
@@ -67,9 +68,16 @@ class Shout
     /**
      * @var ArrayCollection
      *
-     * @ORM\OneToMany(targetEntity="Vote", mappedBy="shout")
+     * @ORM\OneToMany(targetEntity="Vote", mappedBy="shout", cascade={"persist", "remove"}, orphanRemoval=true)
      */
     private $votes;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="created", type="datetime", nullable=true)
+     */
+    private $created;
 
     /**
      * Constructor
@@ -236,6 +244,7 @@ class Shout
     public function addVote(\Prunatic\WebBundle\Entity\Vote $votes)
     {
         $this->votes[] = $votes;
+        $votes->setShout($this);
     
         return $this;
     }
@@ -258,5 +267,35 @@ class Shout
     public function getVotes()
     {
         return $this->votes;
+    }
+    /**
+     * Set created
+     *
+     * @param \DateTime $created
+     * @return Vote
+     */
+    public function setCreated($created)
+    {
+        $this->created = $created;
+
+        return $this;
+    }
+
+    /**
+     * Get created
+     *
+     * @return \DateTime
+     */
+    public function getCreated()
+    {
+        return $this->created;
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function doStuffOnPrePersist()
+    {
+        $this->created = new \DateTime();
     }
 }

@@ -11,14 +11,15 @@ class ShoutController extends Controller
 {
     public function showAction($id)
     {
-        // TODO retrieve the shout by id
-//        $shout = $this->getDoctrine()
-//            ->getRepository('PrunaticWebBundle:Shout')
-//            ->find($id);
-//        if (!$shout) {
-//            throw $this->createNotFoundException('No hem trobat el crit demanat');
-//        }
-        return $this->render('PrunaticWebBundle:Shout:show.html.twig');
+        $shout = $this->getDoctrine()
+            ->getRepository('PrunaticWebBundle:Shout')
+            ->find($id);
+        if (!$shout) {
+            throw $this->createNotFoundException('No hem trobat el crit demanat');
+        }
+        return $this->render('PrunaticWebBundle:Shout:show.html.twig', array(
+            'shout' => $shout,
+        ));
     }
 
     public function createAction()

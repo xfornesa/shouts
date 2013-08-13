@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table()
  * @ORM\Entity
+ * @ORM\HasLifecycleCallbacks
  */
 class Vote
 {
@@ -25,7 +26,7 @@ class Vote
     /**
      * @var Shout
      *
-     * @ORM\ManyToOne(targetEntity="Shout")
+     * @ORM\ManyToOne(targetEntity="Shout", inversedBy="votes")
      * @ORM\JoinColumn(name="shout_id", referencedColumnName="id")
      */
     private $shout;
@@ -33,7 +34,7 @@ class Vote
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="created", type="datetime")
+     * @ORM\Column(name="created", type="datetime", nullable=true)
      */
     private $created;
 
@@ -122,5 +123,13 @@ class Vote
     public function getShout()
     {
         return $this->shout;
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function doStuffOnPrePersist()
+    {
+        $this->created = new \DateTime();
     }
 }
