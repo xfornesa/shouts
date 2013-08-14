@@ -29,3 +29,13 @@ prunatic_shout_vote:
     pattern:  /votar-per-un-crit.html
     defaults: { _controller: PrunaticWebBundle:Shout:vote }
     methods: POST
+
+prunatic_shout_remove:
+    pattern:  /silenciar-un-crit.html
+    defaults: { _controller: PrunaticWebBundle:Shout:requestRemoval }
+    methods: POST
+
+prunatic_shout_confirm_remove:
+    pattern:  /confirmar-silenciar-un-crit.html?token={token}
+    defaults: { _controller: PrunaticWebBundle:Shout:confirmRemoval }
+    methods: GET

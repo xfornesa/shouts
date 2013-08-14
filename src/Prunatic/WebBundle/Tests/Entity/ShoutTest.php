@@ -5,12 +5,14 @@
 
 namespace Prunatic\WebBundle\Tests\Entity;
 
-use Prunatic\WebBundle\Entity\DuplicateIpException;
+use Prunatic\WebBundle\Entity\DuplicateException;
 use Prunatic\WebBundle\Entity\Shout;
 use InvalidArgumentException;
+use Symfony\Component\Form\Extension\Csrf\CsrfProvider\DefaultCsrfProvider;
 
 class ShoutTest extends \PHPUnit_Framework_TestCase
 {
+    // report issues
     public function testReportInappropriateOnce()
     {
         $shout = new Shout();
@@ -44,19 +46,20 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
         $this->assertNotEquals($status, $shout->getStatus());
     }
 
-    public function testThrowsDuplicateIpExceptionWhenReportInappropriateWithSameIpTwice()
+    public function testThrowsDuplicateExceptionWhenReportInappropriateWithSameIpTwice()
     {
         try {
             $shout = new Shout();
             $ip = $this->getFakeIp();
             $shout->reportInappropriate($ip);
             $shout->reportInappropriate($ip);
-        } catch (DuplicateIpException $e) {
+        } catch (DuplicateException $e) {
             return;
         }
         $this->fail('An expected Exception has not been raised.');
     }
 
+    // votes issues
     public function testAddManyVotes()
     {
         $shout = new Shout();
@@ -69,7 +72,7 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expectedVotes, count($shout->getVotes()));
     }
 
-    public function testThrowsDuplicateIpExceptionWhenVoteWithSameIpTwice()
+    public function testThrowsDuplicateExceptionWhenVoteWithSameIpTwice()
     {
         try {
             $shout = new Shout();
@@ -77,18 +80,34 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
 
             $shout->vote($ip);
             $shout->vote($ip);
-        } catch (DuplicateIpException $e) {
+        } catch (DuplicateException $e) {
             return;
         }
         $this->fail('An expected Exception has not been raised.');
     }
 
-    public function testValidStatus()
+    // status issues
+    public function testDefaultStatusWhenCreate()
     {
-        //$this->
+        $shout = new Shout();
+        $this->assertEquals(Shout::STATUS_NEW, $shout->getStatus());
     }
 
-    public function testInvalidStatus()
+    public function testAcceptOnlyValidStatus()
+    {
+        $availableStatus = array(
+            Shout::STATUS_NEW,
+            Shout::STATUS_APPROVED,
+            Shout::STATUS_INAPPROPRIATE
+        );
+        $shout = new Shout();
+        foreach ($availableStatus as $status) {
+            $shout->setStatus($status);
+            $this->assertEquals($status, $shout->getStatus());
+        }
+    }
+
+    public function testThrowsInvalidArgumentExceptionWhenInvalidStatus()
     {
         try {
             $shout = new Shout();
@@ -99,6 +118,22 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
         $this->fail('An expected Exception has not been raised.');
     }
 
+    // token issues
+    public function testTokenUnique()
+    {
+        $this->markTestSkipped('
+            Is really necessary to ensure that a token is unique?
+            Probabilistic it should work, and there will be not enough pending removal request to have collisions.
+            ');
+    }
+
+    // helpers
+    /**
+     * Generate a fake IP based on param $i
+     *
+     * @param int $i
+     * @return string
+     */
     private function getFakeIp($i = 1)
     {
         return sprintf('127.0.0.%s', $i);

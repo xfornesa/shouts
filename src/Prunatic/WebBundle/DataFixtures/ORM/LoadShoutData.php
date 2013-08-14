@@ -24,7 +24,6 @@ class LoadShoutData implements FixtureInterface
             'Catalunya is not Spain',
             'Hi han dos tipus de persones, els catalans i els que ho voldrien ser'
         );
-        $reportIp = gethostbyname('localhost');
 
         for ($i=0; $i<15; $i++) {
             $shout = new Shout();
@@ -37,17 +36,29 @@ class LoadShoutData implements FixtureInterface
             // votes
             $numVotes =  rand(0, 10);
             for ($j=0; $j<$numVotes; $j++) {
-
-                $shout->addVote(new Vote($reportIp));
+                $ip = $this->getFakeIp($j+1);
+                $shout->addVote(new Vote($ip));
             }
             // reports
             $numReports =  rand(0, 3 * rand(0, 1));
             for ($j=0; $j<$numReports; $j++) {
-                $shout->reportInappropriate($reportIp);
+                $ip = $this->getFakeIp($j+1);
+                $shout->reportInappropriate($ip);
             }
             // persist the shout
             $manager->persist($shout);
         }
         $manager->flush();
+    }
+
+    /**
+     * Generate a fake IP based on param $i
+     *
+     * @param int $i
+     * @return string
+     */
+    private function getFakeIp($i = 1)
+    {
+        return sprintf('127.0.0.%s', $i);
     }
 }

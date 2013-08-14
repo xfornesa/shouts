@@ -8,6 +8,7 @@ namespace Prunatic\WebBundle\Controller;
 use Prunatic\WebBundle\Entity\Shout;
 use Prunatic\WebBundle\Entity\Vote;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Form\Extension\Csrf\CsrfProvider\SessionCsrfProvider;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -16,7 +17,7 @@ class ShoutController extends Controller
 {
     public function showAction($id)
     {
-        $shout = $this->getShoutOrNotFoundException($id);
+        $shout = $this->getShoutByIdOrNotFoundException($id);
 
         return $this->render('PrunaticWebBundle:Shout:show.html.twig', array(
             'shout' => $shout,
@@ -31,7 +32,7 @@ class ShoutController extends Controller
     public function reportAction(Request $request)
     {
         $id = $request->get('id');
-        $shout = $this->getShoutOrNotFoundException($id);
+        $shout = $this->getShoutByIdOrNotFoundException($id);
 
         $ip = $request->getClientIp();
         $shout->reportInappropriate($ip);
@@ -48,7 +49,7 @@ class ShoutController extends Controller
         }
 
         $this->get('session')->getFlashBag()->add(
-            'notice',
+            'success',
             sprintf("El crit amb id %s s'ha reportat com a inapropiat. Gràcies per la teva col·laboració.", $id)
         );
 
@@ -58,7 +59,7 @@ class ShoutController extends Controller
     public function voteAction(Request $request)
     {
         $id = $request->get('id');
-        $shout = $this->getShoutOrNotFoundException($id);
+        $shout = $this->getShoutByIdOrNotFoundException($id);
 
         $ip = $request->getClientIp();
         $vote = new Vote($ip);
@@ -76,8 +77,58 @@ class ShoutController extends Controller
         }
 
         $this->get('session')->getFlashBag()->add(
-            'notice',
+            'success',
             sprintf("Gràcies per recolçar el crit amb id %s.", $id)
+        );
+
+        return $this->redirect($this->generateUrl('prunatic_web_homepage'));
+    }
+
+    public function requestRemovalAction(Request $request)
+    {
+        $id = $request->get('id');
+        $shout = $this->getShoutByIdOrNotFoundException($id);
+
+        // set token
+        $intention = $shout->getId().$shout->getEmail();
+        $token = $this->generateToken($intention);
+        $shout->setToken($token);
+
+        // send email confirmation
+        $confirmUrl = $this->generateUrl('prunatic_shout_confirm_remove', array('token' => $shout->getToken()), true);
+        $mailer = $this->get('mailer');
+        $shout->sendRemovalConfirmationEmail($mailer, $confirmUrl);
+
+        // store updates
+        $this->getDoctrine()->getManager()->persist($shout);
+        $this->getDoctrine()->getManager()->flush();
+
+        if ($request->isXmlHttpRequest()) {
+            // create a JSON-response with a 200 status code
+            $response = new Response(json_encode(true));
+            $response->headers->set('Content-Type', 'application/json');
+
+            return $response;
+        }
+
+        $this->get('session')->getFlashBag()->add(
+            'success',
+            sprintf("S'ha enviat un email de confirmació d'esborrat a l'autor del crit amb id %s.", $id)
+        );
+
+        return $this->redirect($this->generateUrl('prunatic_web_homepage'));
+    }
+
+    public function confirmRemovalAction($token)
+    {
+        $shout = $this->getShoutByTokenOrNotFoundException($token);
+        $id = $shout->getId();
+        $this->getDoctrine()->getManager()->remove($shout);
+        $this->getDoctrine()->getManager()->flush();
+
+        $this->get('session')->getFlashBag()->add(
+            'success',
+            sprintf("S'ha silenciat el crit amb id %s.", $id)
         );
 
         return $this->redirect($this->generateUrl('prunatic_web_homepage'));
@@ -88,15 +139,47 @@ class ShoutController extends Controller
      * @return Shout
      * @throws NotFoundHttpException
      */
-    private function getShoutOrNotFoundException($id)
+    private function getShoutByIdOrNotFoundException($id)
     {
         $shout = $this->getDoctrine()
             ->getRepository('PrunaticWebBundle:Shout')
             ->find($id);
         if (!$shout) {
-            throw $this->createNotFoundException('No hem trobat el crit demanat');
+            throw $this->createNotFoundException(sprintf("No hem trobat el crit demanat amb l'id %s", $id));
         }
 
         return $shout;
+    }
+
+    /**
+     * @param $token
+     * @return Shout
+     * @throws NotFoundHttpException
+     */
+    private function getShoutByTokenOrNotFoundException($token)
+    {
+        $shout = $this->getDoctrine()
+            ->getRepository('PrunaticWebBundle:Shout')
+            ->findByToken($token);
+        if (!$shout) {
+            throw $this->createNotFoundException(sprintf('No hem trobat el crit demanat amd el token %s', $token));
+        }
+
+        return $shout;
+    }
+
+    /**
+     * Generates a token
+     *
+     * @param $intention
+     * @return string
+     */
+    private function generateToken($intention)
+    {
+        /** @var SessionCsrfProvider $csrf */
+        $csrf = $this->get('form.csrf_provider'); // Symfony\Component\Form\Extension\Csrf\CsrfProvider\SessionCsrfProvider by default
+        $token = $csrf->generateCsrfToken($intention); // Intention
+
+        return $token;
     }
 }

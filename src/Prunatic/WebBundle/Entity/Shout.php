@@ -101,6 +101,13 @@ class Shout
     private $reports;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="token", type="string", length=255, nullable=true)
+     */
+    private $token;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="created", type="datetime", nullable=true)
@@ -268,7 +275,7 @@ class Shout
      * Add votes
      *
      * @param Vote $votes
-     * @throws DuplicateIpException
+     * @throws DuplicateException
      * @return Shout
      */
     public function addVote(Vote $votes)
@@ -276,7 +283,7 @@ class Shout
         // avoid more than one vote from the same IP
         $ip = $votes->getIp();
         if ($this->hasBeenVotedFromIp($ip)) {
-            throw new DuplicateIpException(sprintf('There is a previous vote from the same IP.', $ip));
+            throw new DuplicateException(sprintf('There is a previous vote from the same IP.', $ip));
         }
 
         $this->votes[] = $votes;
@@ -334,7 +341,7 @@ class Shout
      * Add reports
      *
      * @param Report $reports
-     * @throws DuplicateIpException
+     * @throws DuplicateException
      * @return Shout
      */
     public function addReport(Report $reports)
@@ -342,7 +349,7 @@ class Shout
         // avoid more than one report with the same IP
         $ip = $reports->getIp();
         if ($this->hasBeenReportedFromIp($ip)) {
-            throw new DuplicateIpException(sprintf('There is a previous report from the same IP.', $ip));
+            throw new DuplicateException(sprintf('There is a previous report from the same IP.', $ip));
         }
         $this->reports[] = $reports;
         $reports->setShout($this);
@@ -486,5 +493,60 @@ class Shout
     public function getStatus()
     {
         return $this->status;
+    }
+
+    /**
+     * Set token
+     *
+     * @param string $token
+     * @return Shout
+     */
+    public function setToken($token)
+    {
+        $this->token = $token;
+    
+        return $this;
+    }
+
+    /**
+     * Get token
+     *
+     * @return string 
+     */
+    public function getToken()
+    {
+        return $this->token;
+    }
+
+    /**
+     * Sends an email to the author to confirm the shout removal
+     *
+     * @param \Swift_Mailer $mailer
+     * @param string $url Absolute url to confirm shout removal
+     * @return boolean
+     */
+    public function sendRemovalConfirmationEmail(\Swift_Mailer $mailer, $url)
+    {
+        // TODO get data from configuration
+        $subject = 'Confirmació per silenciar un crit';
+        $from = 'send@example.com';
+        $to = $this->getEmail();
+
+        // TODO render body with a template
+        $body = <<<EOF
+            Hola, si us play fes clic aquí per confirmar que vols silenciar el teu crit:
+            <a href="{$url}">{$url}</a>
+EOF;
+
+        $message = \Swift_Message::newInstance()
+            ->setSubject($subject)
+            ->setFrom($from)
+            ->setTo($to)
+            ->setBody($body);
+        ;
+
+        $i_recipients = $mailer->send($message);
+
+        return $i_recipients > 0;
     }
 }

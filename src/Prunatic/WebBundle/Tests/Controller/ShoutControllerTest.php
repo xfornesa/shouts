@@ -1,0 +1,97 @@
+<?php
+/**
+ * Author: Xavier
+ */
+
+namespace Prunatic\WebBundle\Tests\Controller;
+
+use Prunatic\WebBundle\Entity\Shout;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Bundle\SwiftmailerBundle\DataCollector\MessageDataCollector;
+use Symfony\Component\Validator\Constraints\True;
+
+class ShoutControllerTest extends WebTestCase
+{
+    public function testRequestRemoval()
+    {
+        $client = static::createClient();
+        // Enable the profiler for the next request (it does nothing if the profiler is not available)
+        $this->assertEquals($client->getContainer()->has('profiler'), true, 'Ensure that the profiler is enabled in config_test.yml file.');
+        $client->enableProfiler();
+
+        // First, set up a shout mock
+        $shoutId = 1;
+        $shoutEmail = 'email@example.org';
+        $shoutToken = 'token';
+        $shout = $this->getMockBuilder('\Prunatic\WebBundle\Entity\Shout')
+            ->setMethods(array('getId', 'setToken', 'getEmail', 'getToken'))
+            ->getMock();
+        $shout->expects($this->any())
+            ->method('getId')
+            ->will($this->returnValue($shoutId));
+        $shout->expects($this->once())
+            ->method('setToken');
+        $shout->expects($this->atLeastOnce())
+            ->method('getEmail')
+            ->will($this->returnValue($shoutEmail));
+        $shout->expects($this->atLeastOnce())
+            ->method('getToken')
+            ->will($this->returnValue($shoutToken));
+
+        // Now, mock the repository so it returns the mock of the shout
+        $shoutRepository =
+            $this->getMockBuilder('\Doctrine\ORM\EntityRepository')
+            ->disableOriginalConstructor()
+            ->setMethods(array('find'))
+            ->getMock();
+        $shoutRepository->expects($this->any())
+            ->method('find')
+            ->with($shoutId)
+            ->will($this->returnValue($shout));
+
+        // Last, mock the EntityManager to return the mock of the repository
+        $factory = $this->getMock('\Doctrine\ORM\Mapping\ClassMetadataFactory', array('getLoadedMetadata'));
+        $factory->expects($this->any())
+            ->method('getLoadedMetadata')
+            ->will($this->returnValue(array()));
+        $entityManager = $this->getMockBuilder('\Doctrine\ORM\EntityManager')
+            ->disableOriginalConstructor()
+            ->setMethods(array('persist', 'remove', 'flush', 'getRepository', 'getMetadataFactory'))
+            ->getMock();
+        $entityManager->expects($this->any())
+            ->method('getMetadataFactory')
+            ->will($this->returnValue($factory));
+
+        $entityManager->expects($this->any())
+            ->method('getRepository')
+            ->with('PrunaticWebBundle:Shout')
+            ->will($this->returnValue($shoutRepository));
+
+        // inject our mock as a entity manager
+        $client->getContainer()->set('doctrine.orm.default_entity_manager', $entityManager);
+
+        // post to url
+        $url = $client->getContainer()->get('router')->generate('prunatic_shout_remove');
+        $crawler = $client->request('POST', $url, array('id' => $shoutId));
+
+        // assert email was being sent
+        /** @var MessageDataCollector $mailCollector */
+        $mailCollector = $client->getProfile()->getCollector('swiftmailer');
+
+        // Check that an e-mail was sent
+        $this->assertEquals(1, $mailCollector->getMessageCount(), 'No email has been sent.');
+
+        // Asserting e-mail data
+        $collectedMessages = $mailCollector->getMessages('default');
+        /** @var \Swift_Message $message */
+        $message = reset($collectedMessages);
+        $this->assertInstanceOf('Swift_Message', $message);
+        $this->assertArrayHasKey($shoutEmail, $message->getTo(), 'The destination email does not correspond with shout email.');
+        $this->assertContains($shoutToken, $message->getBody(), 'The token is not present on message body.');
+    }
+
+    public function testConfirmRemoval()
+    {
+        $this->markTestIncomplete('TODO complete confirm removal action for shout controller');
+    }
+}
