@@ -26,8 +26,9 @@ class ShoutControllerTest extends WebTestCase
     {
         $client = static::createClient();
         // Enable the profiler for the next request (it does nothing if the profiler is not available)
-        $this->assertEquals($client->getContainer()->has('profiler'), true, 'Ensure that the profiler is enabled in config_test.yml file.');
         $client->enableProfiler();
+        $this->assertTrue($client->getContainer()->has('profiler'), 'Ensure that framework.profiler.enabled = true in config_test.yml file');
+        $this->assertFalse($client->getContainer()->getParameter('profiler_listener.only_exceptions'), 'Ensure that framework.profiler.only_exceptions = false in config_test.yml file');
 
         // First, set up a shout mock
         $shoutId = 1;
@@ -52,11 +53,10 @@ class ShoutControllerTest extends WebTestCase
         $shoutRepository =
             $this->getMockBuilder('\Doctrine\ORM\EntityRepository')
             ->disableOriginalConstructor()
-            ->setMethods(array('find'))
+            ->setMethods(array('findOneBy'))
             ->getMock();
         $shoutRepository->expects($this->any())
-            ->method('find')
-            ->with($shoutId)
+            ->method('findOneBy')
             ->will($this->returnValue($shout));
 
         // Last, mock the EntityManager to return the mock of the repository
@@ -83,6 +83,7 @@ class ShoutControllerTest extends WebTestCase
         // post to url
         $url = $client->getContainer()->get('router')->generate('prunatic_shout_remove');
         $crawler = $client->request('POST', $url, array('id' => $shoutId));
+
 
         // assert email was being sent
         /** @var MessageDataCollector $mailCollector */

@@ -18,7 +18,7 @@ class ShoutController extends Controller
 {
     public function showAction($id)
     {
-        $shout = $this->getShoutByIdOrNotFoundException($id);
+        $shout = $this->getShoutByIdOrNotFoundException($id, true);
 
         return $this->render('PrunaticWebBundle:Shout:show.html.twig', array(
             'shout' => $shout,
@@ -33,7 +33,7 @@ class ShoutController extends Controller
     public function reportAction(Request $request)
     {
         $id = $request->get('id');
-        $shout = $this->getShoutByIdOrNotFoundException($id);
+        $shout = $this->getShoutByIdOrNotFoundException($id, false);
 
         $ip = $request->getClientIp();
         $shout->reportInappropriate($ip);
@@ -59,7 +59,7 @@ class ShoutController extends Controller
     public function voteAction(Request $request)
     {
         $id = $request->get('id');
-        $shout = $this->getShoutByIdOrNotFoundException($id);
+        $shout = $this->getShoutByIdOrNotFoundException($id, true);
 
         $ip = $request->getClientIp();
         $vote = new Vote($ip);
@@ -86,7 +86,7 @@ class ShoutController extends Controller
     public function requestRemovalAction(Request $request)
     {
         $id = $request->get('id');
-        $shout = $this->getShoutByIdOrNotFoundException($id);
+        $shout = $this->getShoutByIdOrNotFoundException($id, false);
 
         // set token
         $token = $this->generateToken();
@@ -132,15 +132,25 @@ class ShoutController extends Controller
     }
 
     /**
+     * Find a shout by id and status (is visible)
+     *
      * @param $id
+     * @param bool $onlyVisible
+     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
      * @return Shout
-     * @throws NotFoundHttpException
      */
-    private function getShoutByIdOrNotFoundException($id)
+    private function getShoutByIdOrNotFoundException($id, $onlyVisible = true)
     {
+        $params = array(
+            'id' => $id
+        );
+        if ($onlyVisible) {
+            $params['status'] = Shout::STATUS_APPROVED;
+        }
+
         $shout = $this->getDoctrine()
             ->getRepository('PrunaticWebBundle:Shout')
-            ->find($id);
+            ->findOneBy($params);
         if (!$shout) {
             throw $this->createNotFoundException(sprintf("No hem trobat el crit demanat amb l'id %s", $id));
         }
@@ -149,15 +159,17 @@ class ShoutController extends Controller
     }
 
     /**
-     * @param $token
+     * Find a shout by token
+     *
+     * @param string $token
+     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
      * @return Shout
-     * @throws NotFoundHttpException
      */
     private function getShoutByTokenOrNotFoundException($token)
     {
         $shout = $this->getDoctrine()
             ->getRepository('PrunaticWebBundle:Shout')
-            ->findByToken($token);
+            ->findOneByToken($token);
         if (!$shout) {
             throw $this->createNotFoundException(sprintf('No hem trobat el crit demanat amd el token %s', $token));
         }

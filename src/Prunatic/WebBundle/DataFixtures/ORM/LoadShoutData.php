@@ -33,6 +33,7 @@ class LoadShoutData implements FixtureInterface
             $shout->setMessage($messages[rand(0, count($messages)-1)]);
             $shout->setLongitude(41.536691 * rand(0.001, 0.009));
             $shout->setLatitude(2.443804 * rand(0.001, 0.009));
+            $shout->approve();
             // votes
             $numVotes =  rand(0, 10);
             for ($j=0; $j<$numVotes; $j++) {
