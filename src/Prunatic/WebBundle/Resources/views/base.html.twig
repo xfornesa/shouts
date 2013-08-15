@@ -48,31 +48,8 @@
 {% endblock foot_script %}
 
 {% block foot_script_additional %}
-    {#
-    @link http://twitter.github.io/bootstrap/javascript.html#tooltips
-    To use popover and tooltip you'll need to initialize them
-    If you need only tooltips you can remove the popover initialization
-    and also remove the bootstrap-popover.js include.
-    #}
-    <script type="text/javascript">
-        $(document).ready( function () {
-            // popover demo
-            $("a[data-toggle=tooltip]")
-                    .tooltip()
-                    .click(function(e) {
-                        e.preventDefault();
-                    });
-
-            // tooltip initialization
-            $("a[data-toggle=popover]")
-                    .popover()
-                    .click(function(e) {
-                        e.preventDefault();
-                    });
-        });
-    </script>
 {% endblock foot_script_additional %}
 
 {% block footer %}
-    <p class="text-right">&copy; <a href="http://www.prunatic.com" target="_blank">Prunatic</a> {{ "now" | date("Y") }}</p>
+    <p class="text-right"><a href="{{ path('prunatic_web_faq') }}">Preguntes més freqüents</a> | <a href="{{ path('prunatic_web_legal') }}">Avís legal</a> | &copy; <a href="http://www.prunatic.com" target="_blank">Prunatic</a> {{ "now" | date("Y") }}</p>
 {% endblock footer %}
