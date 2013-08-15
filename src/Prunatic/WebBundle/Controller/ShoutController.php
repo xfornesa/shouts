@@ -9,6 +9,7 @@ use Prunatic\WebBundle\Entity\Shout;
 use Prunatic\WebBundle\Entity\Vote;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Csrf\CsrfProvider\SessionCsrfProvider;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -41,9 +42,8 @@ class ShoutController extends Controller
         $this->getDoctrine()->getManager()->flush();
 
         if ($request->isXmlHttpRequest()) {
-            // create a JSON-response with a 200 status code
-            $response = new Response(json_encode(true));
-            $response->headers->set('Content-Type', 'application/json');
+            $response = new JsonResponse();
+            $response->setData(true);
 
             return $response;
         }
@@ -69,9 +69,8 @@ class ShoutController extends Controller
         $this->getDoctrine()->getManager()->flush();
 
         if ($request->isXmlHttpRequest()) {
-            // create a JSON-response with a 200 status code
-            $response = new Response(json_encode(true));
-            $response->headers->set('Content-Type', 'application/json');
+            $response = new JsonResponse();
+            $response->setData(true);
 
             return $response;
         }
@@ -90,8 +89,7 @@ class ShoutController extends Controller
         $shout = $this->getShoutByIdOrNotFoundException($id);
 
         // set token
-        $intention = $shout->getId().$shout->getEmail();
-        $token = $this->generateToken($intention);
+        $token = $this->generateToken();
         $shout->setToken($token);
 
         // send email confirmation
@@ -104,9 +102,8 @@ class ShoutController extends Controller
         $this->getDoctrine()->getManager()->flush();
 
         if ($request->isXmlHttpRequest()) {
-            // create a JSON-response with a 200 status code
-            $response = new Response(json_encode(true));
-            $response->headers->set('Content-Type', 'application/json');
+            $response = new JsonResponse();
+            $response->setData(true);
 
             return $response;
         }
@@ -171,15 +168,10 @@ class ShoutController extends Controller
     /**
      * Generates a token
      *
-     * @param $intention
      * @return string
      */
-    private function generateToken($intention)
+    private function generateToken()
     {
-        /** @var SessionCsrfProvider $csrf */
-        $csrf = $this->get('form.csrf_provider'); // Symfony\Component\Form\Extension\Csrf\CsrfProvider\SessionCsrfProvider by default
-        $token = $csrf->generateCsrfToken($intention); // Intention
-
-        return $token;
+        return md5(uniqid(rand(), true));
     }
 }

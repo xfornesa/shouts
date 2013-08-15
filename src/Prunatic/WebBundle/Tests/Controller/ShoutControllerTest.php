@@ -12,6 +12,16 @@ use Symfony\Component\Validator\Constraints\True;
 
 class ShoutControllerTest extends WebTestCase
 {
+    public function testShowAShoutVisible()
+    {
+        $this->markTestIncomplete('TODO functional test when browse detail for a shout in a status new or approved, get a 200 http code');
+    }
+
+    public function testShowAShoutInappropriate()
+    {
+        $this->markTestIncomplete('TODO functional test when browse detail for a shout in a inappropriate, get a 404 http code');
+    }
+
     public function testRequestRemoval()
     {
         $client = static::createClient();
@@ -22,7 +32,7 @@ class ShoutControllerTest extends WebTestCase
         // First, set up a shout mock
         $shoutId = 1;
         $shoutEmail = 'email@example.org';
-        $shoutToken = 'token';
+        $shoutToken = $this->generateToken();
         $shout = $this->getMockBuilder('\Prunatic\WebBundle\Entity\Shout')
             ->setMethods(array('getId', 'setToken', 'getEmail', 'getToken'))
             ->getMock();
@@ -93,5 +103,15 @@ class ShoutControllerTest extends WebTestCase
     public function testConfirmRemoval()
     {
         $this->markTestIncomplete('TODO complete confirm removal action for shout controller');
+    }
+
+    /**
+     * Generates a token
+     *
+     * @return string
+     */
+    private function generateToken()
+    {
+        return md5(uniqid(rand(), true));
     }
 }

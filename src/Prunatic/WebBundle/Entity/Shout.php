@@ -22,6 +22,7 @@ use Prunatic\WebBundle\Entity\Vote;
  */
 class Shout
 {
+    // TODO Move this field to configuration yml file
     const MIN_REPORTS = 2;
 
     const STATUS_NEW = 'new';
