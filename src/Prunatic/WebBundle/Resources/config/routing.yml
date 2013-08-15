@@ -11,7 +11,7 @@ prunatic_web_faq:
     defaults: { _controller: PrunaticWebBundle:Default:faq }
 
 prunatic_shout_create:
-    pattern:  /afegir-un-crit.html
+    pattern:  /el-megafon.html
     defaults: { _controller: PrunaticWebBundle:Shout:create }
 
 prunatic_shout_show:
