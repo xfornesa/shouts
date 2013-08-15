@@ -6,9 +6,9 @@
 namespace Prunatic\WebBundle\Tests\Entity;
 
 use Prunatic\WebBundle\Entity\DuplicateException;
+use Prunatic\WebBundle\Entity\OperationNotPermittedException;
 use Prunatic\WebBundle\Entity\Shout;
-use InvalidArgumentException;
-use Symfony\Component\Form\Extension\Csrf\CsrfProvider\DefaultCsrfProvider;
+use \InvalidArgumentException as InvalidArgumentException;
 
 class ShoutTest extends \PHPUnit_Framework_TestCase
 {
@@ -56,7 +56,7 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
         } catch (DuplicateException $e) {
             return;
         }
-        $this->fail('An expected Exception has not been raised.');
+        $this->fail('An expected Exception has not been raised');
     }
 
     // votes issues
@@ -83,7 +83,7 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
         } catch (DuplicateException $e) {
             return;
         }
-        $this->fail('An expected Exception has not been raised.');
+        $this->fail('An expected Exception has not been raised');
     }
 
     // status issues
@@ -115,7 +115,49 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
         } catch (InvalidArgumentException $e) {
             return;
         }
-        $this->fail('An expected Exception has not been raised.');
+        $this->fail('An expected Exception has not been raised');
+    }
+
+    public function testCanBeApprovedWithValidStatus()
+    {
+        $validStatus = array(Shout::STATUS_NEW);
+        foreach($validStatus as $status) {
+            $shout = new Shout();
+            $shout->setStatus($status);
+            $this->assertTrue($shout->canBeApproved(), sprintf('Shout with status "%s" could be approved', $status));
+        }
+    }
+
+    public function testCanBeApprovedWithInvalidStatus()
+    {
+        $invalidStatus = array(Shout::STATUS_APPROVED, Shout::STATUS_INAPPROPRIATE);
+        foreach($invalidStatus as $status) {
+            $shout = new Shout();
+            $shout->setStatus($status);
+            $this->assertFalse($shout->canBeApproved(), sprintf('Shout with status "%s" could not be approved', $status));
+        }
+    }
+
+    public function testApprove()
+    {
+        $shout = new Shout();
+        $shout->setStatus(Shout::STATUS_NEW);
+        $this->assertEquals(Shout::STATUS_NEW, $shout->getStatus(), sprintf('A shout that could be approved should be in status %s', Shout::STATUS_NEW));
+        $shout->approve();
+        $this->assertEquals(Shout::STATUS_APPROVED, $shout->getStatus(), sprintf('An approved shout should be in status %s', Shout::STATUS_APPROVED));
+    }
+
+    public function testThrowsOperationNotPermittedExceptionWhenApprovingWithNoValidStatus()
+    {
+        try {
+            $shout = new Shout();
+            $shout->setStatus(Shout::STATUS_INAPPROPRIATE);
+            $this->assertFalse($shout->canBeApproved(), sprintf('A shout with status %s could not be approved', Shout::STATUS_INAPPROPRIATE));
+            $shout->approve();
+        } catch (OperationNotPermittedException $e) {
+            return;
+        }
+        $this->fail('An expected Exception has not been raised');
     }
 
     // token issues

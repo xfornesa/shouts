@@ -9,7 +9,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-use InvalidArgumentException;
+use \InvalidArgumentException as InvalidArgumentException;
+use Prunatic\WebBundle\Entity\OperationNotPermittedException;
 use Prunatic\WebBundle\Entity\Report;
 use Prunatic\WebBundle\Entity\Vote;
 
@@ -297,7 +298,7 @@ class Shout
      * Return if the shout has been voted previously from a given IP
      *
      * @param string $ip
-     * @return boolean
+     * @return bool
      */
     public function hasBeenVotedFromIp($ip)
     {
@@ -362,7 +363,7 @@ class Shout
      * Return if the shout has been reported previously from a given IP
      *
      * @param string $ip
-     * @return boolean
+     * @return bool
      */
     public function hasBeenReportedFromIp($ip)
     {
@@ -470,6 +471,36 @@ class Shout
     }
 
     /**
+     * Approve a shout making it visible
+     *
+     * @throws OperationNotPermittedException
+     * @return $this
+     */
+    public function approve()
+    {
+        if (!$this->canBeApproved()) {
+            $message = sprintf('No es pot aprovar el crit amb id %s i estat %s', $this->getId(), $this->getStatus());
+            throw new OperationNotPermittedException($message);
+        }
+
+        $this->setStatus(self::STATUS_APPROVED);
+
+        return $this;
+    }
+
+    /**
+     * Can a shout be approved?
+     *
+     * @return bool
+     */
+    public function canBeApproved()
+    {
+        $availableStatusForApproving = array(self::STATUS_NEW);
+
+        return in_array($this->status, $availableStatusForApproving);
+    }
+
+    /**
      * Set status
      *
      * @param string $status
@@ -524,7 +555,7 @@ class Shout
      *
      * @param \Swift_Mailer $mailer
      * @param string $url Absolute url to confirm shout removal
-     * @return boolean
+     * @return bool
      */
     public function sendRemovalConfirmationEmail(\Swift_Mailer $mailer, $url)
     {
