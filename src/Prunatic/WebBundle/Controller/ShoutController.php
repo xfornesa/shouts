@@ -5,19 +5,25 @@
 
 namespace Prunatic\WebBundle\Controller;
 
+use Prunatic\WebBundle\Entity\DuplicateException;
+use Prunatic\WebBundle\Entity\OperationNotPermittedException;
 use Prunatic\WebBundle\Entity\Shout;
 use Prunatic\WebBundle\Entity\Vote;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ShoutController extends Controller
 {
     public function showAction($id)
     {
-        $shout = $this->getShoutByIdOrNotFoundException($id, true);
+        $shout = $this->getShoutByIdOrNotFoundException($id);
+        if (!$shout->isVisible()) {
+            throw $this->createNotFoundException(sprintf("El crit demanat amb id %s no està disponible", $id));
+        }
 
         return $this->render('PrunaticWebBundle:Shout:show.html.twig', array(
             'shout' => $shout,
@@ -32,10 +38,14 @@ class ShoutController extends Controller
     public function reportAction(Request $request)
     {
         $id = $request->get('id');
-        $shout = $this->getShoutByIdOrNotFoundException($id, false);
+        $shout = $this->getShoutByIdOrNotFoundException($id);
 
         $ip = $request->getClientIp();
-        $shout->reportInappropriate($ip);
+        try {
+            $shout->reportInappropriate($ip);
+        } catch (DuplicateException $e) {
+            throw new HttpException(500, $e->getMessage(), $e);
+        }
 
         $this->getDoctrine()->getManager()->persist($shout);
         $this->getDoctrine()->getManager()->flush();
@@ -58,11 +68,18 @@ class ShoutController extends Controller
     public function voteAction(Request $request)
     {
         $id = $request->get('id');
-        $shout = $this->getShoutByIdOrNotFoundException($id, true);
+        $shout = $this->getShoutByIdOrNotFoundException($id);
+        if (!$shout->isVisible()) {
+            throw $this->createNotFoundException(sprintf("El crit demanat amb id %s no està disponible", $id));
+        }
 
         $ip = $request->getClientIp();
-        $vote = new Vote($ip);
-        $shout->addVote($vote);
+        try {
+            $vote = new Vote($ip);
+            $shout->addVote($vote);
+        } catch (DuplicateException $e) {
+            throw new HttpException(500, $e->getMessage(), $e);
+        }
 
         $this->getDoctrine()->getManager()->persist($shout);
         $this->getDoctrine()->getManager()->flush();
@@ -85,18 +102,18 @@ class ShoutController extends Controller
     public function requestRemovalAction(Request $request)
     {
         $id = $request->get('id');
-        $shout = $this->getShoutByIdOrNotFoundException($id, false);
+        $shout = $this->getShoutByIdOrNotFoundException($id);
 
-        // set token
-        $token = $this->generateToken();
-        $shout->setToken($token);
-
-        // send email confirmation
-        $confirmUrl = $this->generateUrl('prunatic_shout_confirm_remove', array('token' => $shout->getToken()), true);
+        // prepare required info
         $mailer = $this->get('mailer');
-        $shout->sendRemovalConfirmationEmail($mailer, $confirmUrl);
+        $router = $this->get('router');
+        try {
+            $shout->requestRemoval($mailer, $router);
+        } catch (OperationNotPermittedException $e) {
+            throw new HttpException(500, $e->getMessage(), $e);
+        }
 
-        // store updates
+        // store shout updates
         $this->getDoctrine()->getManager()->persist($shout);
         $this->getDoctrine()->getManager()->flush();
 
@@ -134,22 +151,14 @@ class ShoutController extends Controller
      * Find a shout by id and status (is visible)
      *
      * @param $id
-     * @param bool $onlyVisible
      * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
      * @return Shout
      */
-    private function getShoutByIdOrNotFoundException($id, $onlyVisible = true)
+    private function getShoutByIdOrNotFoundException($id)
     {
-        $params = array(
-            'id' => $id
-        );
-        if ($onlyVisible) {
-            $params['status'] = Shout::STATUS_APPROVED;
-        }
-
         $shout = $this->getDoctrine()
             ->getRepository('PrunaticWebBundle:Shout')
-            ->findOneBy($params);
+            ->find($id);
         if (!$shout) {
             throw $this->createNotFoundException(sprintf("No hem trobat el crit demanat amb l'id %s", $id));
         }
@@ -174,15 +183,5 @@ class ShoutController extends Controller
         }
 
         return $shout;
-    }
-
-    /**
-     * Generates a token
-     *
-     * @return string
-     */
-    private function generateToken()
-    {
-        return md5(uniqid(rand(), true));
     }
 }

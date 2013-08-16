@@ -9,6 +9,8 @@ use Prunatic\WebBundle\Entity\DuplicateException;
 use Prunatic\WebBundle\Entity\OperationNotPermittedException;
 use Prunatic\WebBundle\Entity\Shout;
 use \InvalidArgumentException as InvalidArgumentException;
+use \Swift_Mailer as Swift_Mailer;
+use Symfony\Component\Routing\Generator\UrlGenerator;
 
 class ShoutTest extends \PHPUnit_Framework_TestCase
 {
@@ -158,6 +160,61 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
             return;
         }
         $this->fail('An expected Exception has not been raised');
+    }
+
+    public function testIsVisible()
+    {
+        $visibleStatus = array(Shout::STATUS_APPROVED);
+        foreach($visibleStatus as $status) {
+            $shout = new Shout();
+            $shout->setStatus($status);
+            $this->assertTrue($shout->isVisible(), sprintf('Shout with status "%s" should be visible', $status));
+        }
+    }
+
+    public function testIsNotVisible()
+    {
+        $noVisibleStatus = array(Shout::STATUS_NEW, Shout::STATUS_INAPPROPRIATE);
+        foreach($noVisibleStatus as $status) {
+            $shout = new Shout();
+            $shout->setStatus($status);
+            $this->assertFalse($shout->isVisible(), sprintf('Shout with status "%s" should not be visible', $status));
+        }
+    }
+
+    public function testCanBeRequestedForRemoval()
+    {
+        $validStatus = array(Shout::STATUS_NEW, Shout::STATUS_APPROVED, Shout::STATUS_INAPPROPRIATE);
+        foreach($validStatus as $status) {
+            $shout = new Shout();
+            $shout->setStatus($status);
+            $this->assertTrue($shout->canBeRequestedForRemoval(), sprintf('Shout with status "%s" should be able to be requested for removal', $status));
+        }
+    }
+
+    // Removal issues
+    public function testRequestRemoval()
+    {
+        // Set up mocks for services being used
+        $mailer = $this->getMockBuilder('\Swift_Mailer')
+            ->disableOriginalConstructor()
+            ->setMethods(array('send'))
+            ->getMock();
+        $mailer->expects($this->atLeastOnce())
+            ->method('send');
+
+        $router = $this->getMockBuilder('\Symfony\Component\Routing\Generator\UrlGenerator')
+            ->disableOriginalConstructor()
+            ->setMethods(array('generate'))
+            ->getMock();
+
+        /** @var Shout $shout */
+        $shout = new Shout();
+
+        // Check for a change in token field, must not be empty after request removal
+        $this->assertEmpty($shout->getToken(), 'The token should be empty before request for removal');
+        $shout->requestRemoval($mailer, $router);
+        $this->assertNotEmpty($shout->getToken(), 'The token should not be empty after request for removal');
     }
 
     // token issues

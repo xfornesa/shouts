@@ -10,9 +10,11 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 use \InvalidArgumentException as InvalidArgumentException;
+use \Swift_Mailer as Swift_Mailer;
 use Prunatic\WebBundle\Entity\OperationNotPermittedException;
 use Prunatic\WebBundle\Entity\Report;
 use Prunatic\WebBundle\Entity\Vote;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface as UrlGeneratorInterface;
 
 /**
  * Shout
@@ -285,7 +287,7 @@ class Shout
         // avoid more than one vote from the same IP
         $ip = $votes->getIp();
         if ($this->hasBeenVotedFromIp($ip)) {
-            throw new DuplicateException(sprintf('There is a previous vote from the same IP.', $ip));
+            throw new DuplicateException(sprintf("Ja s'ha votat el crit des d'aquesta IP origen %s", $ip));
         }
 
         $this->votes[] = $votes;
@@ -351,7 +353,7 @@ class Shout
         // avoid more than one report with the same IP
         $ip = $reports->getIp();
         if ($this->hasBeenReportedFromIp($ip)) {
-            throw new DuplicateException(sprintf('There is a previous report from the same IP.', $ip));
+            throw new DuplicateException(sprintf("Ja s'ha reportat el crit des d'aquesta IP origen %s", $ip));
         }
         $this->reports[] = $reports;
         $reports->setShout($this);
@@ -510,7 +512,7 @@ class Shout
     public function setStatus($status)
     {
         if (!in_array($status, array(self::STATUS_NEW, self::STATUS_APPROVED, self::STATUS_INAPPROPRIATE))) {
-            throw new InvalidArgumentException("Invalid status");
+            throw new InvalidArgumentException(sprintf("L'estat del crit no és vàlid '%s'", $status));
         }
         $this->status = $status;
     
@@ -551,13 +553,59 @@ class Shout
     }
 
     /**
+     * Generates a token
+     *
+     * @return string
+     */
+    private function generateToken()
+    {
+        return md5(uniqid(rand(), true));
+    }
+
+    /**
+     * Request for a shout removal, request the author to confirm removal
+     *
+     * @param Swift_Mailer $mailer
+     * @param UrlGeneratorInterface $router
+     * @throws OperationNotPermittedException
+     * @return Shout
+     */
+    public function requestRemoval(Swift_Mailer $mailer, UrlGeneratorInterface $router)
+    {
+        if (!$this->canBeRequestedForRemoval()) {
+            $message = sprintf("No es pot demanar esborrar el crit amb id %s i estat %s", $this->getId(), $this->getStatus());
+            throw new OperationNotPermittedException($message);
+        }
+        $token = $this->generateToken();
+        $this->setToken($token);
+        $confirmUrl = $router->generate('prunatic_shout_confirm_remove', array('token' => $this->getToken()), UrlGeneratorInterface::ABSOLUTE_URL);
+
+        // TODO refactor this action, create a new class to store this behaviour of managing email issues
+        $this->sendRemovalConfirmationEmail($mailer, $confirmUrl);
+
+        return $this;
+    }
+
+    /**
+     * If a shout could be requested for removal
+     *
+     * @return bool
+     */
+    public function canBeRequestedForRemoval()
+    {
+        $requestStatus = array(self::STATUS_NEW, self::STATUS_APPROVED, self::STATUS_INAPPROPRIATE);
+
+        return in_array($this->getStatus(), $requestStatus);
+    }
+
+    /**
      * Sends an email to the author to confirm the shout removal
      *
-     * @param \Swift_Mailer $mailer
+     * @param Swift_Mailer $mailer
      * @param string $url Absolute url to confirm shout removal
      * @return bool
      */
-    public function sendRemovalConfirmationEmail(\Swift_Mailer $mailer, $url)
+    private function sendRemovalConfirmationEmail(Swift_Mailer $mailer, $url)
     {
         // TODO get data from configuration
         $subject = 'Confirmació per silenciar un crit';
@@ -580,5 +628,16 @@ EOF;
         $i_recipients = $mailer->send($message);
 
         return $i_recipients > 0;
+    }
+
+    /**
+     * Return if a shout is visible
+     *
+     * @return bool
+     */
+    public function isVisible()
+    {
+        $visibleStatus = array(self::STATUS_APPROVED);
+        return in_array($this->getStatus(), $visibleStatus);
     }
 }

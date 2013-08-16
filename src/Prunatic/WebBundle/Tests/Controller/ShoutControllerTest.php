@@ -12,12 +12,12 @@ use Symfony\Component\Validator\Constraints\True;
 
 class ShoutControllerTest extends WebTestCase
 {
-    public function testShowAShoutVisible()
+    public function testShowWhenIsVisible()
     {
         $this->markTestIncomplete('TODO functional test when browse detail for a shout in a status new or approved, get a 200 http code');
     }
 
-    public function testShowAShoutInappropriate()
+    public function testShowWhenIsNotVisible()
     {
         $this->markTestIncomplete('TODO functional test when browse detail for a shout in a inappropriate, get a 404 http code');
     }
@@ -33,9 +33,10 @@ class ShoutControllerTest extends WebTestCase
         // First, set up a shout mock
         $shoutId = 1;
         $shoutEmail = 'email@example.org';
+        $shoutAuthor = 'Example author';
         $shoutToken = $this->generateToken();
         $shout = $this->getMockBuilder('\Prunatic\WebBundle\Entity\Shout')
-            ->setMethods(array('getId', 'setToken', 'getEmail', 'getToken'))
+            ->setMethods(array('getId', 'setToken', 'getEmail', 'getAuthor', 'getToken', 'generateToken'))
             ->getMock();
         $shout->expects($this->any())
             ->method('getId')
@@ -45,6 +46,9 @@ class ShoutControllerTest extends WebTestCase
         $shout->expects($this->atLeastOnce())
             ->method('getEmail')
             ->will($this->returnValue($shoutEmail));
+        $shout->expects($this->any())
+            ->method('getAuthor')
+            ->will($this->returnValue($shoutAuthor));
         $shout->expects($this->atLeastOnce())
             ->method('getToken')
             ->will($this->returnValue($shoutToken));
@@ -53,10 +57,10 @@ class ShoutControllerTest extends WebTestCase
         $shoutRepository =
             $this->getMockBuilder('\Doctrine\ORM\EntityRepository')
             ->disableOriginalConstructor()
-            ->setMethods(array('findOneBy'))
+            ->setMethods(array('find'))
             ->getMock();
         $shoutRepository->expects($this->any())
-            ->method('findOneBy')
+            ->method('find')
             ->will($this->returnValue($shout));
 
         // Last, mock the EntityManager to return the mock of the repository
