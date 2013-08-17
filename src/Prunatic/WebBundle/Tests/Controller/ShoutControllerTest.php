@@ -8,7 +8,6 @@ namespace Prunatic\WebBundle\Tests\Controller;
 use Prunatic\WebBundle\Entity\Shout;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Bundle\SwiftmailerBundle\DataCollector\MessageDataCollector;
-use Symfony\Component\Validator\Constraints\True;
 
 class ShoutControllerTest extends WebTestCase
 {

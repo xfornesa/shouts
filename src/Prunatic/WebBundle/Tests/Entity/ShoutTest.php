@@ -5,8 +5,6 @@
 
 namespace Prunatic\WebBundle\Tests\Entity;
 
-use Prunatic\WebBundle\Entity\DuplicateException;
-use Prunatic\WebBundle\Entity\OperationNotPermittedException;
 use Prunatic\WebBundle\Entity\Shout;
 use \InvalidArgumentException as InvalidArgumentException;
 use \Swift_Mailer as Swift_Mailer;
@@ -48,17 +46,15 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
         $this->assertNotEquals($status, $shout->getStatus());
     }
 
+    /**
+     * @expectedException \Prunatic\WebBundle\Entity\DuplicateException
+     */
     public function testThrowsDuplicateExceptionWhenReportInappropriateWithSameIpTwice()
     {
-        try {
-            $shout = new Shout();
-            $ip = $this->getFakeIp();
-            $shout->reportInappropriate($ip);
-            $shout->reportInappropriate($ip);
-        } catch (DuplicateException $e) {
-            return;
-        }
-        $this->fail('An expected Exception has not been raised');
+        $shout = new Shout();
+        $ip = $this->getFakeIp();
+        $shout->reportInappropriate($ip);
+        $shout->reportInappropriate($ip);
     }
 
     // votes issues
@@ -74,18 +70,16 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expectedVotes, count($shout->getVotes()));
     }
 
+    /**
+     * @expectedException \Prunatic\WebBundle\Entity\DuplicateException
+     */
     public function testThrowsDuplicateExceptionWhenVoteWithSameIpTwice()
     {
-        try {
-            $shout = new Shout();
-            $ip = $this->getFakeIp();
+        $shout = new Shout();
+        $ip = $this->getFakeIp();
 
-            $shout->vote($ip);
-            $shout->vote($ip);
-        } catch (DuplicateException $e) {
-            return;
-        }
-        $this->fail('An expected Exception has not been raised');
+        $shout->vote($ip);
+        $shout->vote($ip);
     }
 
     // status issues
@@ -109,15 +103,13 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    /**
+     * @expectedException \InvalidArgumentException
+     */
     public function testThrowsInvalidArgumentExceptionWhenInvalidStatus()
     {
-        try {
-            $shout = new Shout();
-            $shout->setStatus('test-invalid');
-        } catch (InvalidArgumentException $e) {
-            return;
-        }
-        $this->fail('An expected Exception has not been raised');
+        $shout = new Shout();
+        $shout->setStatus('test-invalid');
     }
 
     public function testCanBeApprovedWithValidStatus()
@@ -149,17 +141,15 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(Shout::STATUS_APPROVED, $shout->getStatus(), sprintf('An approved shout should be in status %s', Shout::STATUS_APPROVED));
     }
 
+    /**
+     * @expectedException \Prunatic\WebBundle\Entity\OperationNotPermittedException
+     */
     public function testThrowsOperationNotPermittedExceptionWhenApprovingWithNoValidStatus()
     {
-        try {
-            $shout = new Shout();
-            $shout->setStatus(Shout::STATUS_INAPPROPRIATE);
-            $this->assertFalse($shout->canBeApproved(), sprintf('A shout with status %s could not be approved', Shout::STATUS_INAPPROPRIATE));
-            $shout->approve();
-        } catch (OperationNotPermittedException $e) {
-            return;
-        }
-        $this->fail('An expected Exception has not been raised');
+        $shout = new Shout();
+        $shout->setStatus(Shout::STATUS_INAPPROPRIATE);
+        $this->assertFalse($shout->canBeApproved(), sprintf('A shout with status %s could not be approved', Shout::STATUS_INAPPROPRIATE));
+        $shout->approve();
     }
 
     public function testIsVisible()
