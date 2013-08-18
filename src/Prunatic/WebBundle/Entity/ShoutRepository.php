@@ -15,4 +15,18 @@ use Doctrine\ORM\EntityRepository;
  */
 class ShoutRepository extends EntityRepository
 {
+    private function qbLastVisibleShouts()
+    {
+        return $this->createQueryBuilder('s')
+            ->orderBy('s.created', 'desc')
+            ->addOrderBy('s.id', 'desc');
+    }
+
+    public function getLastVisibleShouts()
+    {
+        return $this->qbLastVisibleShouts()
+            ->getQuery()
+            ->getResult()
+        ;
+    }
 }
