@@ -70,6 +70,29 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expectedVotes, count($shout->getVotes()));
     }
 
+    public function testTotalVotesIncrement()
+    {
+        $shout = new Shout();
+        $this->assertEquals(0, $shout->getTotalVotes());
+        $ip = $this->getFakeIp(1);
+        $shout->vote($ip);
+        $this->assertEquals(1, $shout->getTotalVotes());
+    }
+
+    public function testTotalVotesDecrement()
+    {
+        $shout = new Shout();
+        $ip = $this->getFakeIp(1);
+        $shout->vote($ip);
+        $totalVotes = $shout->getTotalVotes();
+        $this->assertGreaterThanOrEqual(1, $totalVotes, 'Ensure that total votes is positive when adding a vote');
+        $votes = $shout->getVotes();
+        $this->assertNotEmpty($votes, 'After adding a vote, shout votes collection should not be empty');
+        $vote = $votes->first();
+        $shout->removeVote($vote);
+        $this->assertEquals($totalVotes-1, $shout->getTotalVotes(), 'Ensure that when removing one vote from a shout collection the total of votes is decreasing by 1');
+    }
+
     /**
      * @expectedException \Prunatic\WebBundle\Entity\DuplicateException
      */
@@ -211,8 +234,7 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
     public function testTokenUnique()
     {
         $this->markTestSkipped('
-            Is really necessary to ensure that a token is unique?
-            Probabilistic it should work, and there will be not enough pending removal request to have collisions.
+            I am not sure how to test this feature.
             ');
     }
 

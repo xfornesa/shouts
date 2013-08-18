@@ -32,6 +32,9 @@ class Shout
     const STATUS_APPROVED = 'approved';
     const STATUS_INAPPROPRIATE = 'inappropriate';
 
+    // TODO add a photo field
+    // TODO add country, province and city fields
+
     /**
      * @var integer
      *
@@ -98,6 +101,13 @@ class Shout
     private $votes;
 
     /**
+     * @var integer
+     *
+     * @ORM\Column(name="totalVotes", type="integer")
+     */
+    private $totalVotes;
+
+    /**
      * @var ArrayCollection
      *
      * @ORM\OneToMany(targetEntity="Report", mappedBy="shout", cascade={"persist", "remove"}, orphanRemoval=true)
@@ -107,7 +117,7 @@ class Shout
     /**
      * @var string
      *
-     * @ORM\Column(name="token", type="string", length=255, nullable=true)
+     * @ORM\Column(name="token", type="string", length=255, unique=true, nullable=true)
      */
     private $token;
 
@@ -123,8 +133,10 @@ class Shout
      */
     public function __construct()
     {
-        $this->votes = new ArrayCollection();
         $this->status = self::STATUS_NEW;
+        $this->reports = new ArrayCollection();
+        $this->votes = new ArrayCollection();
+        $this->totalVotes = 0;
     }
 
     /**
@@ -291,8 +303,9 @@ class Shout
         }
 
         $this->votes[] = $votes;
+        $this->totalVotes++;
         $votes->setShout($this);
-    
+
         return $this;
     }
 
@@ -307,6 +320,7 @@ class Shout
         if (empty($this->votes))
             return false;
         $ip = ip2long($ip);
+        /** @var Vote $vote */
         foreach($this->votes as $vote) {
             $voteIp = $vote->getIp();
             $voteIp = ip2long($voteIp);
@@ -327,6 +341,7 @@ class Shout
     public function removeVote(Vote $votes)
     {
         $this->votes->removeElement($votes);
+        $this->totalVotes--;
 
         return $this;
     }
@@ -372,6 +387,7 @@ class Shout
         if (empty($this->reports))
             return false;
         $ip = ip2long($ip);
+        /** @var Report $report */
         foreach($this->reports as $report) {
             $reportIp = $report->getIp();
             $reportIp = ip2long($reportIp);
@@ -639,5 +655,28 @@ EOF;
     {
         $visibleStatus = array(self::STATUS_APPROVED);
         return in_array($this->getStatus(), $visibleStatus);
+    }
+
+    /**
+     * Set totalVotes
+     *
+     * @param integer $totalVotes
+     * @return Shout
+     */
+    public function setTotalVotes($totalVotes)
+    {
+        $this->totalVotes = $totalVotes;
+    
+        return $this;
+    }
+
+    /**
+     * Get totalVotes
+     *
+     * @return integer 
+     */
+    public function getTotalVotes()
+    {
+        return $this->totalVotes;
     }
 }

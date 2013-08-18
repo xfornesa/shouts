@@ -1,0 +1,33 @@
+<h2>Els més valorats</h2>
+<ul class="unstyled thumbnails topRatedShouts">
+    {% for shout in shouts %}
+        <li class="row-fluid">
+            <div class="thumbnail span11">
+                <div class="span6">
+                    <a href="{{ path('prunatic_shout_show', {'id' : shout.id}) }}" title="Ves al crit">
+                        <img src="http://placehold.it/140x140" class="img-rounded" alt="{{ shout.message }}">
+                    </a>
+                </div>
+                <div class="span6">
+                    <h4>
+                        <a href="{{ path('prunatic_shout_show', {'id' : shout.id}) }}" title="Ves al crit">
+                            {{ shout.author }}
+                        </a>
+                    </h4>
+                    {% if shout.totalVotes > 0 %}
+                        <p>Vots: {{ shout.totalVotes }}</p>
+                    {% endif %}
+                    <p>
+                        {{ shout.message }}
+                    </p>
+                </div>
+            </div>
+        </li>
+    {% else %}
+        <li class="row">
+            <div class="thumbnail">
+                Sigues el primer en deixar el teu crit!
+            </div>
+        </li>
+    {% endfor %}
+</ul>

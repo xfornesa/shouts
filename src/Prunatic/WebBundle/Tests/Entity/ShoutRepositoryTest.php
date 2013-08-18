@@ -71,17 +71,22 @@ class ShoutRepositoryTest extends WebTestCase
     public function testGetLastVisibleShouts()
     {
         /** @var Shout $shout */
-        $numResults = 5;
         $insertedAuthors = array();
 
         // load examples
-        for ($i=0; $i <= $numResults; $i++) {
-            $author = 'author'.$i;
-            $insertedAuthors[] = $author;
+        for ($i=0; $i <= 10; $i++) {
+            $author = sprintf('author-id-%010s', $i);
 
             $shout = new Shout();
             $shout->setAuthor($author);
             $shout->setEmail('example@example.org');
+            if ($i % 3 > 0) {
+                $shout->approve();
+            }
+            if ($shout->isVisible()) {
+                $insertedAuthors[] = $author;
+            }
+
             $this->em->persist($shout);
         }
         $this->em->flush();
@@ -90,7 +95,7 @@ class ShoutRepositoryTest extends WebTestCase
         // retrieve values
         $shouts = $this->em
             ->getRepository('PrunaticWebBundle:Shout')
-            ->getLastVisibleShouts()
+            ->getNewestVisibleShouts()
         ;
 
         // assert there are values
@@ -102,7 +107,51 @@ class ShoutRepositoryTest extends WebTestCase
         foreach ($shouts as $shout) {
             $resultAuthors[] = $shout->getAuthor();
         }
-        $this->assertEquals(array_reverse($insertedAuthors), $resultAuthors);
+        $insertedAuthors = array_reverse($insertedAuthors);
+        $this->assertEquals($insertedAuthors, $resultAuthors);
+    }
+
+    public function testGetTopRatedVisibleShouts()
+    {
+        /** @var Shout $shout */
+        // load examples
+        for ($i=0; $i <= 10; $i++) {
+            $votes = rand(0, 11);
+            $author = sprintf('author-votes-%010s-id-%010s', $votes, $i);
+
+            $shout = new Shout();
+            $shout->setAuthor($author);
+            $shout->setEmail('example@example.org');
+            $shout->setTotalVotes($votes);
+            if ($i % 3 > 0) {
+                $shout->approve();
+            }
+            if ($shout->isVisible()) {
+                $insertedAuthors[] = $author;
+            }
+
+            $this->em->persist($shout);
+        }
+        $this->em->flush();
+        $this->em->clear();
+
+        // retrieve values
+        $shouts = $this->em
+            ->getRepository('PrunaticWebBundle:Shout')
+            ->getTopRatedVisibleShouts()
+        ;
+
+        // assert there are values
+        $this->assertNotEmpty($shouts);
+
+        // assert order values retrieved
+        $resultAuthors = array();
+
+        foreach ($shouts as $shout) {
+            $resultAuthors[] = $shout->getAuthor();
+        }
+        rsort($insertedAuthors);
+        $this->assertEquals($insertedAuthors, $resultAuthors);
     }
 
     /**

@@ -147,6 +147,30 @@ class ShoutController extends Controller
         return $this->redirect($this->generateUrl('prunatic_web_homepage'));
     }
 
+    public function newestAction()
+    {
+        $shouts = $this->getDoctrine()
+            ->getRepository('PrunaticWebBundle:Shout')
+            ->getNewestVisibleShouts()
+        ;
+
+        return $this->render('PrunaticWebBundle:Shout:components/newest.html.twig', array(
+            'shouts' => $shouts
+        ));
+    }
+
+    public function topRatedAction()
+    {
+        $shouts = $this->getDoctrine()
+            ->getRepository('PrunaticWebBundle:Shout')
+            ->getTopRatedVisibleShouts()
+        ;
+
+        return $this->render('PrunaticWebBundle:Shout:components/topRated.html.twig', array(
+            'shouts' => $shouts
+        ));
+    }
+
     /**
      * Find a shout by id and status (is visible)
      *

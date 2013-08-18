@@ -1,0 +1,24 @@
+<h2>Els últims crits</h2>
+<ul class="unstyled thumbnails newestShouts">
+    {% for shout in shouts %}
+        <li>
+            <div class="thumbnail">
+                <div class="caption">
+                    <h4>{{ shout.author }}</h4>
+                    <p>
+                        <a href="{{ path('prunatic_shout_show', {'id' : shout.id}) }}" title="Ves al crit">
+                            {{ shout.message }}
+                        </a>
+                    </p>
+                </div>
+                <img src="http://placehold.it/140x140" class="img-rounded" alt="{{ shout.message }}">
+            </div>
+        </li>
+    {% else %}
+        <li>
+            <div class="thumbnail">
+                Sigues el primer en deixar el teu crit!
+            </div>
+        </li>
+    {% endfor %}
+</ul>

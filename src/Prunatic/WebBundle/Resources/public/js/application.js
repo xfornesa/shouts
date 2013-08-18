@@ -10,12 +10,23 @@ $(document).ready( function () {
         .tooltip()
         .click(function(e) {
             e.preventDefault();
-        });
+        })
+    ;
 
     // tooltip initialization
     $("a[data-toggle=popover]")
         .popover()
         .click(function(e) {
             e.preventDefault();
-        });
+        })
+    ;
+
+    $('.newestShouts .thumbnail').hover(
+        function(){
+            $(this).find('.caption').slideDown(250); //.fadeIn(250)
+        },
+        function(){
+            $(this).find('.caption').slideUp(250); //.fadeOut(205)
+        }
+    );
 });

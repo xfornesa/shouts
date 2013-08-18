@@ -25,51 +25,10 @@
         <hr>
         <div class="row-fluid">
             <div class="span4">
-                <h2>Els últims crits</h2>
-                <ul class="unstyled thumbnails row-fluid">
-                    <li class="span6">
-                        <a href="#" class="thumbnail">
-                            <img data-src="holder.js/140x140" class="img-rounded" alt="">
-                        </a>
-                    </li>
-                    <li class="span6">
-                        <a href="#" class="thumbnail">
-                            <img data-src="holder.js/140x140" class="img-rounded" alt="">
-                        </a>
-                    </li>
-                    <li class="span6">
-                        <a href="#" class="thumbnail">
-                            <img data-src="holder.js/140x140" class="img-rounded" alt="">
-                        </a>
-                    </li>
-                </ul>
+                {% render url('prunatic_shout_newest') %}
             </div>
             <div class="span4">
-                <h2>Els més valorats</h2>
-                <div class="row-fluid best_shouts">
-                    <ul class="unstyled thumbnails">
-                        <li class="row-fluid">
-                            <div class="span6">
-                                <a href="#" class="thumbnail">
-                                    <img data-src="holder.js/140x140" class="img-rounded" alt="">
-                                </a>
-                            </div>
-                            <div class="span6">
-                                <span>Visca Catalunya!</span>
-                            </div>
-                        </li>
-                        <li class="row-fluid">
-                            <div class="span6">
-                                <a href="#" class="thumbnail">
-                                    <img data-src="holder.js/140x140" class="img-rounded" alt="">
-                                </a>
-                            </div>
-                            <div class="span6">
-                                <span>Hi han dos tipus de persones, les que són catalanes i les que ho volen ser</span>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
+                {% render url('prunatic_shout_top_rated') %}
             </div>
             <div class="span4">
                 <h2>Termòmetre de la independència</h2>

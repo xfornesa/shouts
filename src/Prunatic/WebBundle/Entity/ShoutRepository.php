@@ -6,6 +6,7 @@
 namespace Prunatic\WebBundle\Entity;
 
 use Doctrine\ORM\EntityRepository;
+use Prunatic\WebBundle\Entity\Shout;
 
 /**
  * ShoutRepository
@@ -15,16 +16,60 @@ use Doctrine\ORM\EntityRepository;
  */
 class ShoutRepository extends EntityRepository
 {
-    private function qbLastVisibleShouts()
+    private function qbVisibleShouts()
     {
-        return $this->createQueryBuilder('s')
-            ->orderBy('s.created', 'desc')
-            ->addOrderBy('s.id', 'desc');
+        $visibleStatus = array(Shout::STATUS_APPROVED);
+        $qb = $this->createQueryBuilder('s');
+
+        return $qb
+            ->where(
+                $qb->expr()->in('s.status', $visibleStatus)
+            )
+        ;
     }
 
-    public function getLastVisibleShouts()
+    private function qbNewestVisibleShouts()
     {
-        return $this->qbLastVisibleShouts()
+        $qb = $this->qbVisibleShouts();
+
+        return $qb
+            ->orderBy('s.created', 'desc')
+            ->addOrderBy('s.id', 'desc')
+        ;
+    }
+
+    /**
+     * Get shouts approved ordered by created desc
+     * @return array
+     */
+    public function getNewestVisibleShouts()
+    {
+        // TODO add a limit
+        return $this->qbNewestVisibleShouts()
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
+    private function qbTopRatedVisibleShouts()
+    {
+        $qb = $this->qbVisibleShouts();
+
+        return $qb
+            ->orderBy('s.totalVotes', 'desc')
+            ->addOrderBy('s.id', 'desc')
+        ;
+    }
+
+    /**
+     * Get shouts approved ordered by totalVotes desc and id desc
+     *
+     * @return array
+     */
+    public function getTopRatedVisibleShouts()
+    {
+        // TODO add a limit
+        return $this->qbTopRatedVisibleShouts()
             ->getQuery()
             ->getResult()
         ;

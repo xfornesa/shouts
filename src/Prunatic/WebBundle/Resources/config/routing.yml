@@ -39,3 +39,11 @@ prunatic_shout_confirm_remove:
     pattern:  /confirmar-silenciar-un-crit.html?token={token}
     defaults: { _controller: PrunaticWebBundle:Shout:confirmRemoval }
     methods: GET
+
+prunatic_shout_newest:
+    pattern:  /newestShouts
+    defaults: { _controller: PrunaticWebBundle:Shout:newest }
+
+prunatic_shout_top_rated:
+    pattern:  /topRatedShouts
+    defaults: { _controller: PrunaticWebBundle:Shout:topRated }
