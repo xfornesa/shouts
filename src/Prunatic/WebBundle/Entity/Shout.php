@@ -19,13 +19,17 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface as UrlGeneratorInt
 /**
  * Shout
  *
- * @ORM\Table()
+ * @ORM\Table(indexes={
+ * @ORM\Index(name="shout_status_idx", columns={"status"}),
+ * @ORM\Index(name="shout_created_idx", columns={"created"}),
+ * @ORM\Index(name="shout_totalVotes_idx", columns={"totalVotes"})
+ * })
  * @ORM\Entity(repositoryClass="Prunatic\WebBundle\Entity\ShoutRepository")
  * @ORM\HasLifecycleCallbacks
  */
 class Shout
 {
-    // TODO Move this field to configuration yml file
+    // TODO Consider to move this field to a configuration file
     const MIN_REPORTS = 2;
 
     const STATUS_NEW = 'new';

@@ -16,10 +16,23 @@ use Prunatic\WebBundle\Entity\Shout;
  */
 class ShoutRepository extends EntityRepository
 {
-    private function qbVisibleShouts()
+    /**
+     * Prepare base query builder object for visible Shouts
+     *
+     * @param int $offset
+     * @param int $limit
+     * @return \Doctrine\ORM\QueryBuilder
+     */
+    private function qbVisibleShouts($offset = null, $limit = null)
     {
         $visibleStatus = array(Shout::STATUS_APPROVED);
         $qb = $this->createQueryBuilder('s');
+        if (!is_null($offset)) {
+            $qb->setFirstResult($offset);
+        }
+        if (!is_null($limit)) {
+            $qb->setMaxResults($limit);
+        }
 
         return $qb
             ->where(
@@ -28,9 +41,20 @@ class ShoutRepository extends EntityRepository
         ;
     }
 
-    private function qbNewestVisibleShouts()
+    /**
+     * Prepare a query builder for visible shouts ordered by created
+     *
+     * @see http://gist.github.com/arnaud-lb/2704404 to force use index
+     * @see https://doctrine-orm.readthedocs.org/en/latest/cookbook/dql-custom-walkers.html?highlight=setHint#generic-count-query-for-pagination
+     * @param int $offset
+     * @param int $limit
+     * @return \Doctrine\ORM\QueryBuilder
+     */
+    private function qbNewestVisibleShouts($offset = null, $limit = null)
     {
-        $qb = $this->qbVisibleShouts();
+        $qb = $this->qbVisibleShouts($offset, $limit);
+
+        // TODO optimize query ordered by date and filtered by status
 
         return $qb
             ->orderBy('s.created', 'desc')
@@ -39,22 +63,34 @@ class ShoutRepository extends EntityRepository
     }
 
     /**
-     * Get shouts approved ordered by created desc
+     * Get shouts approved ordered by created
+     *
+     * @param int $offset
+     * @param int $limit
      * @return array
      */
-    public function getNewestVisibleShouts()
+    public function getNewestVisibleShouts($offset = 0, $limit = 10)
     {
-        // TODO add a limit
-        return $this->qbNewestVisibleShouts()
+        return $this->qbNewestVisibleShouts($offset, $limit)
             ->getQuery()
             ->getResult()
         ;
     }
 
-    private function qbTopRatedVisibleShouts()
+    /**
+     * Prepare a query builder for visible shouts ordered by total votes (top rated)
+     *
+     * @see http://gist.github.com/arnaud-lb/2704404 to force use index
+     * @see https://doctrine-orm.readthedocs.org/en/latest/cookbook/dql-custom-walkers.html?highlight=setHint#generic-count-query-for-pagination
+     * @param int $offset
+     * @param int $limit
+     * @return \Doctrine\ORM\QueryBuilder
+     */
+    private function qbTopRatedVisibleShouts($offset = null, $limit = null)
     {
-        $qb = $this->qbVisibleShouts();
+        $qb = $this->qbVisibleShouts($offset, $limit);
 
+        // TODO optimize query ordered by total votes and filtered by status, so add indexes
         return $qb
             ->orderBy('s.totalVotes', 'desc')
             ->addOrderBy('s.id', 'desc')
@@ -62,14 +98,15 @@ class ShoutRepository extends EntityRepository
     }
 
     /**
-     * Get shouts approved ordered by totalVotes desc and id desc
+     * Get visible shouts ordered by total votes
      *
+     * @param int $offset
+     * @param int $limit
      * @return array
      */
-    public function getTopRatedVisibleShouts()
+    public function getTopRatedVisibleShouts($offset = 0, $limit = 10)
     {
-        // TODO add a limit
-        return $this->qbTopRatedVisibleShouts()
+        return $this->qbTopRatedVisibleShouts($offset, $limit)
             ->getQuery()
             ->getResult()
         ;

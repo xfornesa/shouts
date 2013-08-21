@@ -1,14 +1,17 @@
 prunatic_web_homepage:
     pattern:  /
     defaults: { _controller: PrunaticWebBundle:Default:index }
+    methods: GET
 
 prunatic_web_legal:
     pattern:  /avis-legal.html
     defaults: { _controller: PrunaticWebBundle:Default:legal }
+    methods: GET
 
 prunatic_web_faq:
     pattern:  /preguntes-frequents.html
     defaults: { _controller: PrunaticWebBundle:Default:faq }
+    methods: GET
 
 prunatic_shout_create:
     pattern:  /el-megafon.html
@@ -17,6 +20,7 @@ prunatic_shout_create:
 prunatic_shout_show:
     pattern:  /crit-{id}.html
     defaults: { _controller: PrunaticWebBundle:Shout:show }
+    methods: GET
     requirements:
         id:  \d+
 
@@ -43,7 +47,9 @@ prunatic_shout_confirm_remove:
 prunatic_shout_newest:
     pattern:  /newestShouts
     defaults: { _controller: PrunaticWebBundle:Shout:newest }
+    methods: GET
 
 prunatic_shout_top_rated:
     pattern:  /topRatedShouts
     defaults: { _controller: PrunaticWebBundle:Shout:topRated }
+    methods: GET
