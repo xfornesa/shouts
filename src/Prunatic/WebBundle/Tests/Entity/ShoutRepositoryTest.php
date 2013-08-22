@@ -165,8 +165,8 @@ class ShoutRepositoryTest extends WebTestCase
             $shout
                 ->setAuthor('Example author')
                 ->setEmail('example@example.org')
-                ->setLatitude($baseLatitude * rand(0.001, 0.009))
-                ->setLongitude($baseLongitude * rand(0.001, 0.009))
+                ->setLatitude($baseLatitude * (1+rand(1, 9)/1000 - rand(1, 9)/1000))
+                ->setLongitude($baseLongitude * (1+rand(1, 9)/1000 - rand(1, 9)/1000))
             ;
             if ($i % 3 > 0) {
                 $shout->approve();

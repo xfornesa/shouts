@@ -7,13 +7,13 @@ namespace Prunatic\WebBundle\Entity;
 
 use Prunatic\WebBundle\Entity\Shout;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * Report
  *
  * @ORM\Table()
  * @ORM\Entity
- * @ORM\HasLifecycleCallbacks
  */
 class Report
 {
@@ -37,6 +37,7 @@ class Report
     /**
      * @var \DateTime
      *
+     * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="created", type="datetime", nullable=true)
      */
     private $created;
@@ -51,12 +52,10 @@ class Report
     /**
      * Constructor
      */
-    public function __construct($ip = null, $created = null)
+    public function __construct($ip = null)
     {
         if (!is_null($ip))
             $this->setIp($ip);
-        if (!is_null($created))
-            $this->setCreated($created);
     }
 
     /**
@@ -143,13 +142,5 @@ class Report
     public function getShout()
     {
         return $this->shout;
-    }
-
-    /**
-     * @ORM\PrePersist
-     */
-    public function doStuffOnPrePersist()
-    {
-        $this->created = new \DateTime();
     }
 }

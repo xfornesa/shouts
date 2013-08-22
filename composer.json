@@ -24,7 +24,8 @@
         "mopa/bootstrap-bundle": "dev-master",
         "twbs/bootstrap": "dev-master",
         "behat/symfony2-extension": "*",
-        "elao/web-profiler-extra-bundle" : "dev-master"
+        "elao/web-profiler-extra-bundle" : "dev-master",
+        "stof/doctrine-extensions-bundle": "~1.1@dev"
     },
     "scripts": {
         "post-install-cmd": [

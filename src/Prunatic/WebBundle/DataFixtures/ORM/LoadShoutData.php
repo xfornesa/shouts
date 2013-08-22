@@ -28,12 +28,14 @@ class LoadShoutData implements FixtureInterface
         for ($i=0; $i<15; $i++) {
             $shout = new Shout();
             // basic fields
-            $shout->setEmail(sprintf('email.%s@elmeucrit.cat', $i));
-            $shout->setAuthor(sprintf('Author %s', $i));
-            $shout->setMessage($messages[rand(0, count($messages)-1)]);
-            $shout->setLongitude(41.536691 * rand(0.001, 0.009));
-            $shout->setLatitude(2.443804 * rand(0.001, 0.009));
-            $shout->approve();
+            $shout
+                ->setEmail(sprintf('email.%s@elmeucrit.cat', $i))
+                ->setAuthor(sprintf('Author %s', $i))
+                ->setMessage($messages[rand(0, count($messages)-1)])
+                ->setLongitude(41.536691 * (1+rand(1, 9)/1000 - rand(1, 9)/1000))
+                ->setLatitude(2.443804 * (1+rand(1, 9)/1000 - rand(1, 9)/1000))
+                ->approve()
+            ;
             // votes
             $numVotes =  rand(0, 10);
             for ($j=0; $j<$numVotes; $j++) {

@@ -8,24 +8,24 @@ namespace Prunatic\WebBundle\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-
-use \InvalidArgumentException as InvalidArgumentException;
+use Gedmo\Mapping\Annotation as Gedmo;
 use \Swift_Mailer as Swift_Mailer;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface as UrlGeneratorInterface;
+use \InvalidArgumentException as InvalidArgumentException;
+
 use Prunatic\WebBundle\Entity\OperationNotPermittedException;
 use Prunatic\WebBundle\Entity\Report;
 use Prunatic\WebBundle\Entity\Vote;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface as UrlGeneratorInterface;
 
 /**
  * Shout
  *
  * @ORM\Table(indexes={
- * @ORM\Index(name="shout_status_idx", columns={"status"}),
- * @ORM\Index(name="shout_created_idx", columns={"created"}),
- * @ORM\Index(name="shout_totalVotes_idx", columns={"totalVotes"})
+ *     @ORM\Index(name="shout_status_idx", columns={"status"}),
+ *     @ORM\Index(name="shout_created_idx", columns={"created"}),
+ *     @ORM\Index(name="shout_total_votes_idx", columns={"total_votes"})
  * })
  * @ORM\Entity(repositoryClass="Prunatic\WebBundle\Entity\ShoutRepository")
- * @ORM\HasLifecycleCallbacks
  */
 class Shout
 {
@@ -107,7 +107,7 @@ class Shout
     /**
      * @var integer
      *
-     * @ORM\Column(name="totalVotes", type="integer")
+     * @ORM\Column(name="total_votes", type="integer")
      */
     private $totalVotes;
 
@@ -128,6 +128,7 @@ class Shout
     /**
      * @var \DateTime
      *
+     * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="created", type="datetime", nullable=true)
      */
     private $created;
@@ -447,14 +448,6 @@ class Shout
     public function getCreated()
     {
         return $this->created;
-    }
-
-    /**
-     * @ORM\PrePersist
-     */
-    public function doStuffOnPrePersist()
-    {
-        $this->created = new \DateTime();
     }
 
     /**
