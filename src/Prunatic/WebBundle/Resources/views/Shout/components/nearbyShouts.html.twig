@@ -1,5 +1,5 @@
-<h2>Els últims crits</h2>
-<ul class="unstyled thumbnails newestShouts captions">
+<h2>Altres crits propers</h2>
+<ul class="unstyled thumbnails nearbyShouts captions">
     {% for shout in shouts %}
         <li>
             <div class="thumbnail">
@@ -12,12 +12,6 @@
                     </p>
                 </div>
                 <img src="http://placehold.it/140x140" class="img-rounded" alt="{{ shout.message }}">
-            </div>
-        </li>
-    {% else %}
-        <li>
-            <div class="thumbnail">
-                Sigues el primer en deixar el teu crit!
             </div>
         </li>
     {% endfor %}

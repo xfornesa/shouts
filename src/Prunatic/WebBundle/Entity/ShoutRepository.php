@@ -111,4 +111,39 @@ class ShoutRepository extends EntityRepository
             ->getResult()
         ;
     }
+
+    /**
+     * Prepare a query builder for visible shouts ordered by distance to the coordinates
+     *
+     * @param $latitude
+     * @param $longitude
+     * @param int $offset
+     * @param int $limit
+     * @return \Doctrine\ORM\QueryBuilder
+     */
+    private function qbNearbyVisibleShouts($latitude, $longitude, $offset = null, $limit = null)
+    {
+        $qb = $this->qbVisibleShouts($offset, $limit);
+
+        // TODO incomplete: implement a search by point and near results
+        return $qb;
+    }
+
+    /**
+     * Get nearby visible shouts from a given coordinates
+     *
+     * @param $latitude
+     * @param $longitude
+     * @param int $offset
+     * @param int $limit
+     * @return array
+     */
+    public function getNearbyVisibleShouts($latitude, $longitude, $offset = null, $limit = null)
+    {
+        return $this->qbNearbyVisibleShouts($latitude, $longitude, $offset = null, $limit = null)
+            ->getQuery()
+            ->getResult()
+            ;
+
+    }
 }

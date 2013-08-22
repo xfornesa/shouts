@@ -171,6 +171,46 @@ class ShoutController extends Controller
         ));
     }
 
+    public function showMapAction($id)
+    {
+        $shout = $this->getShoutByIdOrNotFoundException($id);
+        if (!$shout->isVisible()) {
+            throw $this->createNotFoundException(sprintf("El crit demanat amb id %s no està disponible", $id));
+        }
+
+        $latitude = $shout->getLatitude();
+        $longitude = $shout->getLongitude();
+        $shouts = $this->getDoctrine()
+            ->getRepository('PrunaticWebBundle:Shout')
+            ->getNearbyVisibleShouts($latitude, $longitude)
+        ;
+
+        return $this->render('PrunaticWebBundle:Shout:components/showMap.html.twig', array(
+            'shout' => $shout,
+            'shouts' => $shouts,
+        ));
+    }
+
+    public function nearbyShoutsAction($id)
+    {
+        $shout = $this->getShoutByIdOrNotFoundException($id);
+        if (!$shout->isVisible()) {
+            throw $this->createNotFoundException(sprintf("El crit demanat amb id %s no està disponible", $id));
+        }
+
+        $latitude = $shout->getLatitude();
+        $longitude = $shout->getLongitude();
+        $shouts = $this->getDoctrine()
+            ->getRepository('PrunaticWebBundle:Shout')
+            ->getNearbyVisibleShouts($latitude, $longitude)
+        ;
+
+        return $this->render('PrunaticWebBundle:Shout:components/nearbyShouts.html.twig', array(
+            'shout' => $shout,
+            'shouts' => $shouts,
+        ));
+    }
+
     /**
      * Find a shout by id and status (is visible)
      *

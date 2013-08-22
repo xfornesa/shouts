@@ -1,19 +1,60 @@
 {% extends 'PrunaticWebBundle::base.html.twig' %}
 
-{% block body %}
-    <h1>El meu crit per la independència</h1>
-    <p>Autor: {{ shout.author }}</p>
-    <p>Vots: {{ shout.votes | length }}</p>
-    <ul>
-        {% for vote in shout.votes %}
-            <li>Data: {{ vote.created | date }}. IP: {{ vote.ip }}</li>
-        {% endfor %}
-    </ul>
+{% block headline %}{{ shout.message }}{% endblock headline %}
 
-    <p>Reports: {{ shout.reports | length }}</p>
-    <ul>
-        {% for report in shout.reports %}
-            <li>Data: {{ report.created | date }}. IP: {{ report.ip }}</li>
-        {% endfor %}
-    </ul>
+{% block navbar %}{% endblock navbar %}
+
+{% block content %}
+    <div class="span12">
+        <div class="row-fluid">
+            <div class="span7">
+                <div class="row-fluid">
+                    <img src="http://placehold.it/700x525" alt="{{ shout.message }}">
+                </div>
+                <div class="row-fluid">
+                    <ul class="inline paddingTop3">
+                        <li class="span6 text-left"><a href="https://twitter.com/share" class="twitter-share-button" data-lang="ca" data-hashtags="critpercatalunya">Tuiteja</a></li>
+                        <li class="span6 text-right">
+                            {% if shout.totalVotes > 0 %}
+                                {% set titleVoteAnchor = "%s persones han recolçat aquest crit. M'agrada!" | format(shout.totalVotes) %}
+                            {% else %}
+                                {% set titleVoteAnchor = "Sigues el primer en recolçar aquest crit. M'agrada!" %}
+                            {% endif %}
+                            <a href="{{ path('prunatic_shout_vote', {'id' : shout.id}) }}" title="{{ titleVoteAnchor }}"><i class="icon-thumbs-up"></i> M'agrada</a>
+                        </li>
+                    </ul>
+                    <ul class="inline">
+                        <li class="span6 text-left"><div class="fb-like" data-href="http://developers.facebook.com/docs/reference/plugins/like" data-width="450" data-layout="button_count" data-show-faces="false" data-send="true"></div></li>
+                        <li class="span6 text-right"><a href="{{ path('prunatic_shout_report', {'id' : shout.id}) }}" title="Vull reportar aquest crit per ofensiu o altres motius. Reporta'l"><i class="icon-flag"></i> Reporta el crit</a></li>
+                    </ul>
+                </div>
+                <div class="row-fluid">
+                    <div class="span12">
+                        {% render url('prunatic_shout_nearby', {'id': shout.id}) %}
+                    </div>
+                </div>
+            </div>
+            <div class="span5">
+                <div class="row-fluid">
+                    <div class="span6">
+                        <p class="author">Per: {{ shout.author }}</p>
+                        <p class="city">Població: {{ shout.city | default('Mataró') }}</p>
+                        <p class="province">Província: {{ shout.province | default('Barcelona') }}</p>
+                        <p class="country">País: {{ shout.country | default('Catalunya') }}</p>
+                    </div>
+                    <div class="span6">
+                        {% render url('prunatic_shout_show_map', {'id': shout.id}) %}
+                    </div>
+                </div>
+                <div class="row-fluid">
+                    {# Publi or whatever #}
+                </div>
+                <div class="row-fluid">
+                    <div id="disqus_thread"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 {% endblock %}

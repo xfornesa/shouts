@@ -21,7 +21,7 @@ $(document).ready( function () {
         })
     ;
 
-    $('.newestShouts .thumbnail').hover(
+    $('.captions .thumbnail').hover(
         function(){
             $(this).find('.caption').slideDown(250); //.fadeIn(250)
         },

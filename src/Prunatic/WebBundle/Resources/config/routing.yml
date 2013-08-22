@@ -45,11 +45,23 @@ prunatic_shout_confirm_remove:
     methods: GET
 
 prunatic_shout_newest:
-    pattern:  /newestShouts
+    pattern:  /ultims-crits-afegits.html
     defaults: { _controller: PrunaticWebBundle:Shout:newest }
     methods: GET
 
 prunatic_shout_top_rated:
-    pattern:  /topRatedShouts
+    pattern:  /crits-mes-valorats.html
     defaults: { _controller: PrunaticWebBundle:Shout:topRated }
     methods: GET
+
+prunatic_shout_show_map:
+    pattern:  /mapa-del-crit-{id}.html
+    defaults: { _controller: PrunaticWebBundle:Shout:showMap }
+    methods: GET
+
+prunatic_shout_nearby:
+    pattern:  /crits-mes-propers-al-crit-{id}.html
+    defaults: { _controller: PrunaticWebBundle:Shout:nearbyShouts }
+    methods: GET
+    requirements:
+        id:  \d+
