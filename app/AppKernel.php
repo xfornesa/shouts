@@ -18,6 +18,11 @@ class AppKernel extends Kernel
             new Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle(),
             new Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle(),
             new Stof\DoctrineExtensionsBundle\StofDoctrineExtensionsBundle(),
+            // TODO integrate https://github.com/dustin10/VichUploaderBundle
+            // TODO integrate https://github.com/KnpLabs/Gaufrette
+            // TODO integrate https://github.com/snc/SncRedisBundle
+            // TODO integrate https://github.com/avalanche123/AvalancheImagineBundle
+            // TODO integrate http://knpbundles.com/egeloen/IvoryGoogleMapBundle
             new Mopa\Bundle\BootstrapBundle\MopaBootstrapBundle(),
             new Prunatic\WebBundle\PrunaticWebBundle(),
         );

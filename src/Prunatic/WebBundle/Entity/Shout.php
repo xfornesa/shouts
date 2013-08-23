@@ -26,6 +26,7 @@ use Prunatic\WebBundle\Entity\Vote;
  *     @ORM\Index(name="shout_total_votes_idx", columns={"total_votes"})
  * })
  * @ORM\Entity(repositoryClass="Prunatic\WebBundle\Entity\ShoutRepository")
+ * @Gedmo\Uploadable(allowOverwrite=true, filenameGenerator="SHA1")
  */
 class Shout
 {
@@ -72,7 +73,7 @@ class Shout
     /**
      * @var string
      *
-     * @ORM\Column(name="message", type="text", nullable=true)
+     * @ORM\Column(name="message", type="string", length=255, nullable=true)
      */
     private $message;
 
@@ -80,6 +81,7 @@ class Shout
      * @var string
      *
      * @ORM\Column(name="image", type="string", length=255, nullable=true)
+     * @Gedmo\UploadableFilePath
      */
     private $image;
 

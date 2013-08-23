@@ -1,5 +1,13 @@
 {% extends 'PrunaticWebBundle::base.html.twig' %}
 
-{% block body %}
-    <h1>Fes el teu crit per la independència</h1>
+{% block headline %}Fes el teu crit per la independència{% endblock headline %}
+
+{% block navbar %}{% endblock navbar %}
+
+{% block content %}
+    <div class="span12">
+        <div class="row-fluid">
+            {{ form(form) }}
+        </div>
+    </div>
 {% endblock %}

@@ -30,9 +30,44 @@ class ShoutController extends Controller
         ));
     }
 
-    public function createAction()
+    public function createAction(Request $request)
     {
-        return $this->render('PrunaticWebBundle:Shout:create.html.twig');
+        $shout = new Shout();
+        $form = $this->createFormBuilder($shout)
+            ->add('author')
+            ->add('email', 'email')
+            ->add('message')
+            ->add('image', 'file', array(
+                'required' => false,
+                'data_class' => null,
+                'mapped' => true
+                )
+            )
+            ->add('latitude')
+            ->add('longitude')
+            ->add('save', 'submit')
+            ->getForm();
+
+        $form->handleRequest($request);
+        if ($form->isValid()) {
+            // We get the uploadable manager!
+            $uploadableManager = $this->container->get('stof_doctrine_extensions.uploadable.manager');
+            $uploadableManager->markEntityToUpload($shout, $shout->getImage());
+            $shout->approve();
+            $this->getDoctrine()->getManager()->persist($shout);
+            $this->getDoctrine()->getManager()->flush();
+
+            $this->get('session')->getFlashBag()->add(
+                'success',
+                "S'ha afegit el crit correctament"
+            );
+
+            return $this->redirect($this->generateUrl('prunatic_shout_show', array('id' => $shout->getId())));
+        }
+
+        return $this->render('PrunaticWebBundle:Shout:create.html.twig', array(
+            'form' => $form->createView(),
+        ));
     }
 
     public function reportAction(Request $request)
