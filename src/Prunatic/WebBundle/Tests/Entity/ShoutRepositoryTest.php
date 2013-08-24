@@ -74,12 +74,19 @@ class ShoutRepositoryTest extends WebTestCase
         $insertedAuthors = array();
 
         // load examples
+        $baseLatitude = 2.443804;
+        $baseLongitude = 41.536691;
         for ($i=0; $i<10; $i++) {
             $author = sprintf('author-id-%010s', $i);
 
             $shout = new Shout();
-            $shout->setAuthor($author);
-            $shout->setEmail('example@example.org');
+            $shout
+                ->setAuthor($author)
+                ->setEmail('example@example.org')
+                ->setMessage('')
+                ->setLatitude($baseLatitude * (1+rand(1, 9)/1000 - rand(1, 9)/1000))
+                ->setLongitude($baseLongitude * (1+rand(1, 9)/1000 - rand(1, 9)/1000))
+            ;
             if ($i % 3 > 0) {
                 $shout->approve();
             }
@@ -115,13 +122,20 @@ class ShoutRepositoryTest extends WebTestCase
     {
         /** @var Shout $shout */
         // load examples
+        $baseLatitude = 2.443804;
+        $baseLongitude = 41.536691;
         for ($i=0; $i<10; $i++) {
             $votes = rand(0, 11);
             $author = sprintf('author-votes-%010s-id-%010s', $votes, $i);
 
             $shout = new Shout();
-            $shout->setAuthor($author);
-            $shout->setEmail('example@example.org');
+            $shout
+                ->setAuthor($author)
+                ->setEmail('example@example.org')
+                ->setMessage('')
+                ->setLatitude($baseLatitude * (1+rand(1, 9)/1000 - rand(1, 9)/1000))
+                ->setLongitude($baseLongitude * (1+rand(1, 9)/1000 - rand(1, 9)/1000))
+            ;
             $shout->setTotalVotes($votes);
             if ($i % 3 > 0) {
                 $shout->approve();
@@ -165,6 +179,7 @@ class ShoutRepositoryTest extends WebTestCase
             $shout
                 ->setAuthor('Example author')
                 ->setEmail('example@example.org')
+                ->setMessage('')
                 ->setLatitude($baseLatitude * (1+rand(1, 9)/1000 - rand(1, 9)/1000))
                 ->setLongitude($baseLongitude * (1+rand(1, 9)/1000 - rand(1, 9)/1000))
             ;

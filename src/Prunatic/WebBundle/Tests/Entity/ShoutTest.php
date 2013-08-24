@@ -222,6 +222,8 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
             ->getMock();
 
         /** @var Shout $shout */
+        /** @var \Swift_Mailer $mailer */
+        /** @var \Symfony\Component\Routing\Generator\UrlGenerator $router */
         $shout = new Shout();
 
         // Check for a change in token field, must not be empty after request removal

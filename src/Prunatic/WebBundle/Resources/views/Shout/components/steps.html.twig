@@ -1,0 +1,22 @@
+<h3>Participa!</h3>
+<p>Deixa el teu missatge per la independència de Catalunya.</p>
+<p>És molt fàcil:<p>
+{% if currentStep == 1 %}
+<ul class="unstyled steps">
+    <li class="well active"><i class="icon-volume-up"></i> <a href="{{ path('prunatic_shout_create') }}">Agafa el megàfon</a></li>
+    <li class="well"><i class="icon-heart"></i> Digues el que tu i/o la teva família sentiu per Catalunya</li>
+    <li class="well"><i class="icon-share"></i> I comparteix-ho amb els teus amics</li>
+</ul>
+{% elseif currentStep == 2 %}
+<ul class="unstyled steps">
+    <li class="well"><i class="icon-volume-up"></i> Agafa el megàfon</li>
+    <li class="well active"><i class="icon-heart"></i> Digues el que tu i/o la teva família sentiu per Catalunya</li>
+    <li class="well"><i class="icon-share"></i> I comparteix-ho amb els teus amics</li>
+</ul>
+{% elseif currentStep == 3 %}
+<ul class="unstyled steps">
+    <li class="well"><i class="icon-volume-up"></i> Agafa el megàfon</li>
+    <li class="well"><i class="icon-heart"></i> Digues el que tu i/o la teva família sentiu per Catalunya</li>
+    <li class="well active"><i class="icon-share"></i> I comparteix-ho amb els teus amics</li>
+</ul>
+{% endif %}

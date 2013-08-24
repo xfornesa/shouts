@@ -1,4 +1,6 @@
+@import "variables.less";
 
+/* General styles */
 .paddingTop3 {
   padding-top: 3px;
 }
@@ -11,6 +13,7 @@
   height: 400px;
   position: relative;
 }
+
 .nearbyShouts {
   &.thumbnails {
     li {
@@ -18,6 +21,7 @@
     }
   }
 }
+
 .captions {
   .thumbnail {
     position:relative;
@@ -32,6 +36,16 @@
       height: 88%;
       background: rgba(0,0,0,0.2);
       color:#fff !important;
+    }
+  }
+}
+
+ul {
+  &.steps {
+    li {
+      &.active {
+        color: @blue;
+      }
     }
   }
 }

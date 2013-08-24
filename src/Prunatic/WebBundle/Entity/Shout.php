@@ -9,9 +9,10 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use \InvalidArgumentException as InvalidArgumentException;
 use \Swift_Mailer as Swift_Mailer;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface as UrlGeneratorInterface;
-use \InvalidArgumentException as InvalidArgumentException;
+use Symfony\Component\Validator\Constraints as Assert;
 
 use Prunatic\WebBundle\Entity\OperationNotPermittedException;
 use Prunatic\WebBundle\Entity\Report;
@@ -59,7 +60,9 @@ class Shout
     /**
      * @var string
      *
-     * @ORM\Column(name="author", type="string", length=255, nullable=true)
+     * @ORM\Column(name="author", type="string", length=255)
+     * @Assert\NotBlank()
+     * @Assert\Length(min="3", max="250")
      */
     private $author;
 
@@ -67,13 +70,19 @@ class Shout
      * @var string
      *
      * @ORM\Column(name="email", type="string", length=255)
+     * @Assert\NotBlank()
+     * @Assert\Length(min="6", max="250")
+     * @Assert\Email(checkMX=false, checkHost=false)
      */
     private $email;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="message", type="string", length=255, nullable=true)
+     * @ORM\Column(name="message", type="string", length=255)
+     * @Assert\NotBlank()
+     * @Assert\Length(min="3", max="250")
+     *
      */
     private $message;
 
@@ -88,14 +97,18 @@ class Shout
     /**
      * @var float
      *
-     * @ORM\Column(name="latitude", type="decimal", precision=11, scale=8, nullable=true)
+     * @ORM\Column(name="latitude", type="decimal", precision=11, scale=8)
+     * @Assert\NotBlank()
+     * @Assert\Type(type="float")
      */
     private $latitude;
 
     /**
      * @var float
      *
-     * @ORM\Column(name="longitude", type="decimal", precision=11, scale=8, nullable=true)
+     * @ORM\Column(name="longitude", type="decimal", precision=11, scale=8)
+     * @Assert\NotBlank()
+     * @Assert\Type(type="float")
      */
     private $longitude;
 

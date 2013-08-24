@@ -7,7 +7,22 @@
 {% block content %}
     <div class="span12">
         <div class="row-fluid">
-            {{ form(form) }}
+            <div class="span9">
+                {{ form_start(form) }}
+
+                {{ form_row(form.author) }}
+
+                {{ form_row(form.email) }}
+
+                {{ form_row(form.message) }}
+
+                {{ form_row(form.image) }}
+
+                {{ form_end(form) }}
+            </div>
+            <div class="span3">
+                {{ include('PrunaticWebBundle:Shout:components/steps.html.twig', { 'currentStep': 2 }, with_context = false) }}
+            </div>
         </div>
     </div>
 {% endblock %}
