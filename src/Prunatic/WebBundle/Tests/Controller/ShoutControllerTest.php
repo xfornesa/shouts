@@ -8,6 +8,7 @@ namespace Prunatic\WebBundle\Tests\Controller;
 use Prunatic\WebBundle\Entity\Shout;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Bundle\SwiftmailerBundle\DataCollector\MessageDataCollector;
+use Prunatic\WebBundle\Service\NotificationManager;
 
 class ShoutControllerTest extends WebTestCase
 {
@@ -277,7 +278,49 @@ class ShoutControllerTest extends WebTestCase
 
     public function testRequestRemovalForNonExistentShout()
     {
-        $this->markTestIncomplete('TODO when request for removal for a shout that does not exist, error 404');
+        $client = static::createClient();
+
+        // TODO extract common mock definitions to methods
+        // First, set up a shout mock
+        $shoutId = 1;
+        $shout = array();
+
+        // Now, mock the repository so it returns the mock of the shout
+        $shoutRepository = $this->getMockBuilder('\Doctrine\ORM\EntityRepository')
+            ->disableOriginalConstructor()
+            ->setMethods(array('find'))
+            ->getMock();
+        $shoutRepository->expects($this->any())
+            ->method('find')
+            ->will($this->returnValue($shout));
+
+        // Last, mock the EntityManager to return the mock of the repository
+        $factory = $this->getMock('\Doctrine\ORM\Mapping\ClassMetadataFactory', array('getLoadedMetadata'));
+        $factory->expects($this->any())
+            ->method('getLoadedMetadata')
+            ->will($this->returnValue(array()));
+        $entityManager = $this->getMockBuilder('\Doctrine\ORM\EntityManager')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getRepository', 'getMetadataFactory'))
+            ->getMock();
+        $entityManager->expects($this->any())
+            ->method('getMetadataFactory')
+            ->will($this->returnValue($factory));
+
+        $entityManager->expects($this->any())
+            ->method('getRepository')
+            ->with('PrunaticWebBundle:Shout')
+            ->will($this->returnValue($shoutRepository));
+
+        // inject our mock as a entity manager
+        $client->getContainer()->set('doctrine.orm.default_entity_manager', $entityManager);
+
+        // post to url
+        $url = $client->getContainer()->get('router')->generate('prunatic_shout_remove');
+        $client->request('POST', $url, array('id' => $shoutId));
+
+        // Assert that the response status code is 404
+        $this->assertTrue($client->getResponse()->isNotFound(), 'Ensure that HTTP status code is 404 not found');
     }
 
     public function testRequestRemovalWithShoutThatCanNotBeRequestedForRemoval()

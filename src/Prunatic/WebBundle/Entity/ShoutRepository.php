@@ -54,7 +54,7 @@ class ShoutRepository extends EntityRepository
     {
         $qb = $this->qbVisibleShouts($offset, $limit);
 
-        // TODO optimize query ordered by date and filtered by status
+        // TODO optimize query ordered by date and filtered by status, actually it does not use right indexes
 
         return $qb
             ->orderBy('s.created', 'desc')
@@ -90,7 +90,7 @@ class ShoutRepository extends EntityRepository
     {
         $qb = $this->qbVisibleShouts($offset, $limit);
 
-        // TODO optimize query ordered by total votes and filtered by status, so add indexes
+        // TODO optimize query ordered by total votes and filtered by status, actually it does not use right indexes
         return $qb
             ->orderBy('s.totalVotes', 'desc')
             ->addOrderBy('s.id', 'desc')

@@ -9,12 +9,14 @@ use Prunatic\WebBundle\Entity\DuplicateException;
 use Prunatic\WebBundle\Entity\OperationNotPermittedException;
 use Prunatic\WebBundle\Entity\Shout;
 use Prunatic\WebBundle\Entity\Vote;
+use Prunatic\WebBundle\Service\NotificationManager;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class ShoutController extends Controller
 {
@@ -140,10 +142,12 @@ class ShoutController extends Controller
         $shout = $this->getShoutByIdOrNotFoundException($id);
 
         // prepare required info
-        $mailer = $this->get('mailer');
+        /** @var NotificationManager $notificationManager */
+        $notificationManager = $this->get('prunatic_web.notification_manager');
+        /** @var UrlGeneratorInterface $router */
         $router = $this->get('router');
         try {
-            $shout->requestRemoval($mailer, $router);
+            $shout->requestRemoval($notificationManager, $router);
         } catch (OperationNotPermittedException $e) {
             throw new HttpException(500, $e->getMessage(), $e);
         }

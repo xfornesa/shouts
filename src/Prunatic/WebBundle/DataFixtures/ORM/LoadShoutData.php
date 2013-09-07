@@ -9,6 +9,7 @@ use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Prunatic\WebBundle\Entity\Shout;
 use Prunatic\WebBundle\Entity\Vote;
+use Prunatic\WebBundle\Entity\Point;
 
 class LoadShoutData implements FixtureInterface
 {
@@ -28,12 +29,12 @@ class LoadShoutData implements FixtureInterface
         for ($i=0; $i<15; $i++) {
             $shout = new Shout();
             // basic fields
+            $point = new Point(41.536691 * (1+rand(1, 9)/1000 - rand(1, 9)/1000),2.443804 * (1+rand(1, 9)/1000 - rand(1, 9)/1000));
             $shout
                 ->setEmail(sprintf('email.%s@elmeucrit.cat', $i))
                 ->setAuthor(sprintf('Author %s', $i))
                 ->setMessage($messages[rand(0, count($messages)-1)])
-                ->setLongitude(41.536691 * (1+rand(1, 9)/1000 - rand(1, 9)/1000))
-                ->setLatitude(2.443804 * (1+rand(1, 9)/1000 - rand(1, 9)/1000))
+                ->setPoint($point)
                 ->approve()
             ;
             // votes

@@ -10,6 +10,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use \InvalidArgumentException as InvalidArgumentException;
+use Prunatic\WebBundle\Service\NotificationManager;
 use \Swift_Mailer as Swift_Mailer;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface as UrlGeneratorInterface;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -17,6 +18,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Prunatic\WebBundle\Entity\OperationNotPermittedException;
 use Prunatic\WebBundle\Entity\Report;
 use Prunatic\WebBundle\Entity\Vote;
+use Prunatic\WebBundle\Entity\Point;
 
 /**
  * Shout
@@ -38,7 +40,6 @@ class Shout
     const STATUS_APPROVED = 'approved';
     const STATUS_INAPPROPRIATE = 'inappropriate';
 
-    // TODO add a photo field
     // TODO add country, province and city fields
 
     /**
@@ -95,22 +96,11 @@ class Shout
     private $image;
 
     /**
-     * @var float
+     * @var Point
      *
-     * @ORM\Column(name="latitude", type="decimal", precision=11, scale=8)
-     * @Assert\NotBlank()
-     * @Assert\Type(type="float")
+     * @ORM\Column(name="point", type="point", nullable=true)
      */
-    private $latitude;
-
-    /**
-     * @var float
-     *
-     * @ORM\Column(name="longitude", type="decimal", precision=11, scale=8)
-     * @Assert\NotBlank()
-     * @Assert\Type(type="float")
-     */
-    private $longitude;
+    private $point;
 
     /**
      * @var ArrayCollection
@@ -261,50 +251,29 @@ class Shout
         return $this->image;
     }
 
+
+
     /**
-     * Set latitude
+     * Set point
      *
-     * @param float $latitude
+     * @param point $point
      * @return Shout
      */
-    public function setLatitude($latitude)
+    public function setPoint($point)
     {
-        $this->latitude = $latitude;
-    
+        $this->point = $point;
+
         return $this;
     }
 
     /**
-     * Get latitude
+     * Get point
      *
-     * @return float 
+     * @return point
      */
-    public function getLatitude()
+    public function getPoint()
     {
-        return $this->latitude;
-    }
-
-    /**
-     * Set longitude
-     *
-     * @param float $longitude
-     * @return Shout
-     */
-    public function setLongitude($longitude)
-    {
-        $this->longitude = $longitude;
-    
-        return $this;
-    }
-
-    /**
-     * Get longitude
-     *
-     * @return float 
-     */
-    public function getLongitude()
-    {
-        return $this->longitude;
+        return $this->point;
     }
 
     /**
@@ -593,12 +562,12 @@ class Shout
     /**
      * Request for a shout removal, request the author to confirm removal
      *
-     * @param Swift_Mailer $mailer
+     * @param NotificationManager $notificationManager
      * @param UrlGeneratorInterface $router
      * @throws OperationNotPermittedException
      * @return Shout
      */
-    public function requestRemoval(Swift_Mailer $mailer, UrlGeneratorInterface $router)
+    public function requestRemoval(NotificationManager $notificationManager, UrlGeneratorInterface $router)
     {
         if (!$this->canBeRequestedForRemoval()) {
             $message = sprintf("No es pot demanar esborrar el crit amb id %s i estat %s", $this->getId(), $this->getStatus());
@@ -608,8 +577,7 @@ class Shout
         $this->setToken($token);
         $confirmUrl = $router->generate('prunatic_shout_confirm_remove', array('token' => $this->getToken()), UrlGeneratorInterface::ABSOLUTE_URL);
 
-        // TODO refactor this action, create a new class to store this behaviour of managing email issues
-        $this->sendRemovalConfirmationEmail($mailer, $confirmUrl);
+        $notificationManager->sendShoutRemovalConfirmationEmail($this, $confirmUrl);
 
         return $this;
     }

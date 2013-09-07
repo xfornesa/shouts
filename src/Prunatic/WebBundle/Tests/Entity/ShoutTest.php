@@ -7,6 +7,7 @@ namespace Prunatic\WebBundle\Tests\Entity;
 
 use Prunatic\WebBundle\Entity\Shout;
 use \InvalidArgumentException as InvalidArgumentException;
+use Prunatic\WebBundle\Service\NotificationManager;
 use \Swift_Mailer as Swift_Mailer;
 use Symfony\Component\Routing\Generator\UrlGenerator;
 
@@ -209,26 +210,25 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
     public function testRequestRemoval()
     {
         // Set up mocks for services being used
-        $mailer = $this->getMockBuilder('\Swift_Mailer')
+        $notificationManager = $this->getMockBuilder('\Prunatic\WebBundle\Service\NotificationManager')
             ->disableOriginalConstructor()
-            ->setMethods(array('send'))
+            ->setMethods(array('sendShoutRemovalConfirmationEmail'))
             ->getMock();
-        $mailer->expects($this->atLeastOnce())
-            ->method('send');
+        $notificationManager->expects($this->atLeastOnce())
+            ->method('sendShoutRemovalConfirmationEmail');
+        /** @var NotificationManager $notificationManager */
 
         $router = $this->getMockBuilder('\Symfony\Component\Routing\Generator\UrlGenerator')
             ->disableOriginalConstructor()
             ->setMethods(array('generate'))
             ->getMock();
+        /** @var UrlGenerator $router */
 
-        /** @var Shout $shout */
-        /** @var \Swift_Mailer $mailer */
-        /** @var \Symfony\Component\Routing\Generator\UrlGenerator $router */
         $shout = new Shout();
 
         // Check for a change in token field, must not be empty after request removal
         $this->assertEmpty($shout->getToken(), 'The token should be empty before request for removal');
-        $shout->requestRemoval($mailer, $router);
+        $shout->requestRemoval($notificationManager, $router);
         $this->assertNotEmpty($shout->getToken(), 'The token should not be empty after request for removal');
     }
 
