@@ -217,11 +217,9 @@ class ShoutController extends Controller
             throw $this->createNotFoundException(sprintf("El crit demanat amb id %s no està disponible", $id));
         }
 
-        $latitude = $shout->getLatitude();
-        $longitude = $shout->getLongitude();
         $shouts = $this->getDoctrine()
             ->getRepository('PrunaticWebBundle:Shout')
-            ->getNearbyVisibleShouts($latitude, $longitude)
+            ->getNearbyVisibleShouts($shout->getPoint())
         ;
 
         return $this->render('PrunaticWebBundle:Shout:components/showMap.html.twig', array(
@@ -237,11 +235,9 @@ class ShoutController extends Controller
             throw $this->createNotFoundException(sprintf("El crit demanat amb id %s no està disponible", $id));
         }
 
-        $latitude = $shout->getLatitude();
-        $longitude = $shout->getLongitude();
         $shouts = $this->getDoctrine()
             ->getRepository('PrunaticWebBundle:Shout')
-            ->getNearbyVisibleShouts($latitude, $longitude)
+            ->getNearbyVisibleShouts($shout->getPoint())
         ;
 
         return $this->render('PrunaticWebBundle:Shout:components/nearbyShouts.html.twig', array(
