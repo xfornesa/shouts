@@ -6,6 +6,7 @@
 namespace Prunatic\WebBundle\Tests\Entity;
 
 use Doctrine\ORM\EntityManager;
+use Prunatic\WebBundle\Entity\Point;
 use Prunatic\WebBundle\Entity\Shout;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -74,8 +75,6 @@ class ShoutRepositoryTest extends WebTestCase
         $insertedAuthors = array();
 
         // load examples
-        $baseLatitude = 2.443804;
-        $baseLongitude = 41.536691;
         for ($i=0; $i<10; $i++) {
             $author = sprintf('author-id-%010s', $i);
 
@@ -84,8 +83,6 @@ class ShoutRepositoryTest extends WebTestCase
                 ->setAuthor($author)
                 ->setEmail('example@example.org')
                 ->setMessage('')
-                ->setLatitude($baseLatitude * (1+rand(1, 9)/1000 - rand(1, 9)/1000))
-                ->setLongitude($baseLongitude * (1+rand(1, 9)/1000 - rand(1, 9)/1000))
             ;
             if ($i % 3 > 0) {
                 $shout->approve();
@@ -122,8 +119,6 @@ class ShoutRepositoryTest extends WebTestCase
     {
         /** @var Shout $shout */
         // load examples
-        $baseLatitude = 2.443804;
-        $baseLongitude = 41.536691;
         for ($i=0; $i<10; $i++) {
             $votes = rand(0, 11);
             $author = sprintf('author-votes-%010s-id-%010s', $votes, $i);
@@ -133,8 +128,6 @@ class ShoutRepositoryTest extends WebTestCase
                 ->setAuthor($author)
                 ->setEmail('example@example.org')
                 ->setMessage('')
-                ->setLatitude($baseLatitude * (1+rand(1, 9)/1000 - rand(1, 9)/1000))
-                ->setLongitude($baseLongitude * (1+rand(1, 9)/1000 - rand(1, 9)/1000))
             ;
             $shout->setTotalVotes($votes);
             if ($i % 3 > 0) {
@@ -176,12 +169,14 @@ class ShoutRepositoryTest extends WebTestCase
         $baseLongitude = 41.536691;
         for ($i=0; $i<10; $i++) {
             $shout = new Shout();
+            $latitude = $baseLatitude * (1 + rand(1, 9) / 1000 - rand(1, 9) / 1000);
+            $longitude = $baseLongitude * (1 + rand(1, 9) / 1000 - rand(1, 9) / 1000);
+            $point = new Point($longitude, $latitude);
             $shout
                 ->setAuthor('Example author')
                 ->setEmail('example@example.org')
                 ->setMessage('')
-                ->setLatitude($baseLatitude * (1+rand(1, 9)/1000 - rand(1, 9)/1000))
-                ->setLongitude($baseLongitude * (1+rand(1, 9)/1000 - rand(1, 9)/1000))
+                ->setPoint($point)
             ;
             if ($i % 3 > 0) {
                 $shout->approve();
@@ -208,11 +203,11 @@ class ShoutRepositoryTest extends WebTestCase
         // assert distance to the center is further for successive shouts
         $previousDistance = 0;
         foreach ($shouts as $shout) {
-            $currentDistance = $this->distance($baseLatitude, $baseLongitude, $shout->getLatitude(), $shout->getLongitude());
+            $point = $shout->getPoint();
+            $currentDistance = $this->distance($baseLatitude, $baseLongitude, $point->getLatitude(), $point->getLongitude());
             $this->assertLessThanOrEqual($previousDistance, $currentDistance, 'Ensure that shouts are ordered by distance');
             $previousDistance = $currentDistance;
         }
-
     }
 
     /**
