@@ -165,12 +165,13 @@ class ShoutRepositoryTest extends WebTestCase
     {
         /** @var Shout $shout */
         // load examples
-        $baseLatitude = 2.443804;
         $baseLongitude = 41.536691;
+        $baseLatitude = 2.443804;
+        $basePoint = new Point($baseLongitude, $baseLatitude);
         for ($i=0; $i<10; $i++) {
             $shout = new Shout();
-            $latitude = $baseLatitude * (1 + rand(1, 9) / 1000 - rand(1, 9) / 1000);
             $longitude = $baseLongitude * (1 + rand(1, 9) / 1000 - rand(1, 9) / 1000);
+            $latitude = $baseLatitude * (1 + rand(1, 9) / 1000 - rand(1, 9) / 1000);
             $point = new Point($longitude, $latitude);
             $shout
                 ->setAuthor('Example author')
@@ -189,7 +190,7 @@ class ShoutRepositoryTest extends WebTestCase
         // retrieve values
         $shouts = $this->em
             ->getRepository('PrunaticWebBundle:Shout')
-            ->getNearbyVisibleShouts($baseLatitude, $baseLongitude)
+            ->getNearbyVisibleShouts($basePoint)
         ;
 
         // assert there are values
@@ -204,29 +205,10 @@ class ShoutRepositoryTest extends WebTestCase
         $previousDistance = 0;
         foreach ($shouts as $shout) {
             $point = $shout->getPoint();
-            $currentDistance = $this->distance($baseLatitude, $baseLongitude, $point->getLatitude(), $point->getLongitude());
-            $this->assertLessThanOrEqual($previousDistance, $currentDistance, 'Ensure that shouts are ordered by distance');
-            $previousDistance = $currentDistance;
+            $distance = $basePoint->getDistance($point);
+            $this->assertGreaterThanOrEqual($previousDistance, $distance, 'Ensure that shouts are ordered by distance');
+            $previousDistance = $distance;
         }
-    }
-
-    /**
-     * Calculates the distance between two coordinates
-     *
-     * @param $lat1
-     * @param $lon1
-     * @param $lat2
-     * @param $lon2
-     * @return float
-     */
-    private function distance($lat1, $lon1, $lat2, $lon2)
-    {
-        $theta = $lon1 - $lon2;
-        $dist = sin(deg2rad($lat1)) * sin(deg2rad($lat2)) +  cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * cos(deg2rad($theta));
-        $dist = acos($dist);
-        $dist = rad2deg($dist);
-
-        return $dist;
     }
 
     /**

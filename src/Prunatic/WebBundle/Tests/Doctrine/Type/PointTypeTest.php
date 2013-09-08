@@ -3,10 +3,10 @@
  * Author: Xavier
  */
 
-namespace Prunatic\WebBundle\Tests\Type;
+namespace Prunatic\WebBundle\Tests\Doctrine\Type;
 
 use Prunatic\WebBundle\Entity\Point;
-use Prunatic\WebBundle\Type\PointType;
+use Prunatic\WebBundle\Doctrine\Type\PointType;
 use Doctrine\DBAL\Types\Type;
 
 class PointTypeTest extends \PHPUnit_Framework_TestCase
@@ -23,7 +23,7 @@ class PointTypeTest extends \PHPUnit_Framework_TestCase
 
     public static function setUpBeforeClass()
     {
-        Type::addType('point', 'Prunatic\WebBundle\Type\PointType');
+        Type::addType('point', 'Prunatic\WebBundle\Doctrine\Type\PointType');
     }
 
     protected function setUp()
@@ -33,7 +33,7 @@ class PointTypeTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers \Prunatic\WebBundle\Type\PointType::getSqlDeclaration
+     * @covers \Prunatic\WebBundle\Doctrine\Type\PointType::getSqlDeclaration
      */
     public function testReturnsSqlDeclaration()
     {
@@ -41,7 +41,7 @@ class PointTypeTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers \Prunatic\WebBundle\Type\PointType::convertToPHPValue
+     * @covers \Prunatic\WebBundle\Doctrine\Type\PointType::convertToPHPValue
      */
     public function testConvertToPHPValue()
     {
@@ -50,13 +50,13 @@ class PointTypeTest extends \PHPUnit_Framework_TestCase
         $databaseValue = sprintf('POINT(%F %F)', $longitude, $latitude);
 
         $point = $this->type->convertToPHPValue($databaseValue, $this->platform);
-        $this->assertTrue($point instanceof Point);
+        $this->assertInstanceOf('Prunatic\WebBundle\Entity\Point', $point);
         $this->assertEquals($longitude, $point->getLongitude());
         $this->assertEquals($latitude, $point->getLatitude());
     }
 
     /**
-     * @covers \Prunatic\WebBundle\Type\PointType::convertToDatabaseValue
+     * @covers \Prunatic\WebBundle\Doctrine\Type\PointType::convertToDatabaseValue
      */
     public function testConvertToDatabaseValue()
     {
@@ -70,7 +70,7 @@ class PointTypeTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers \Prunatic\WebBundle\Type\PointType::canRequireSQLConversion
+     * @covers \Prunatic\WebBundle\Doctrine\Type\PointType::canRequireSQLConversion
      */
     public function testReturnCanRequireSQLConversion()
     {
@@ -78,7 +78,7 @@ class PointTypeTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers \Prunatic\WebBundle\Type\PointType::convertToPHPValueSQL
+     * @covers \Prunatic\WebBundle\Doctrine\Type\PointType::convertToPHPValueSQL
      */
     public function testReturnsConvertToPHPValueSQL()
     {
@@ -86,7 +86,7 @@ class PointTypeTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers \Prunatic\WebBundle\Type\PointType::convertToDatabaseValueSQL
+     * @covers \Prunatic\WebBundle\Doctrine\Type\PointType::convertToDatabaseValueSQL
      */
     public function testReturnsConvertToDatabaseValueSQL()
     {

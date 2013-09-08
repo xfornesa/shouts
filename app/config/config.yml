@@ -64,7 +64,7 @@ doctrine:
         # e.g. database_path: %kernel.root_dir%/data/data.db3
         # path:     %database_path%
         types:
-            point: Prunatic\WebBundle\Type\PointType
+            point: Prunatic\WebBundle\Doctrine\Type\PointType
         mapping_types:
             enum: string
             point: point

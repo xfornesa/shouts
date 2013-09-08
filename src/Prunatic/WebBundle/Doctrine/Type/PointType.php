@@ -3,7 +3,7 @@
  * Author: Xavier
  */
 
-namespace Prunatic\WebBundle\Type;
+namespace Prunatic\WebBundle\Doctrine\Type;
 
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Platforms\AbstractPlatform;

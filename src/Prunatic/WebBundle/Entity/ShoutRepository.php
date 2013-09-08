@@ -5,8 +5,11 @@
 
 namespace Prunatic\WebBundle\Entity;
 
+use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Query\ResultSetMapping;
 use Prunatic\WebBundle\Entity\Shout;
+use Prunatic\WebBundle\Entity\Point;
 
 /**
  * ShoutRepository
@@ -20,18 +23,18 @@ class ShoutRepository extends EntityRepository
      * Prepare base query builder object for visible Shouts
      *
      * @param int $offset
-     * @param int $limit
+     * @param int $maxResults
      * @return \Doctrine\ORM\QueryBuilder
      */
-    private function qbVisibleShouts($offset = null, $limit = null)
+    private function qbVisibleShouts($offset = null, $maxResults = null)
     {
         $visibleStatus = array(Shout::STATUS_APPROVED);
         $qb = $this->createQueryBuilder('s');
         if (!is_null($offset)) {
             $qb->setFirstResult($offset);
         }
-        if (!is_null($limit)) {
-            $qb->setMaxResults($limit);
+        if (!is_null($maxResults)) {
+            $qb->setMaxResults($maxResults);
         }
 
         return $qb
@@ -47,12 +50,12 @@ class ShoutRepository extends EntityRepository
      * @see http://gist.github.com/arnaud-lb/2704404 to force use index
      * @see https://doctrine-orm.readthedocs.org/en/latest/cookbook/dql-custom-walkers.html?highlight=setHint#generic-count-query-for-pagination
      * @param int $offset
-     * @param int $limit
+     * @param int $maxResults
      * @return \Doctrine\ORM\QueryBuilder
      */
-    private function qbNewestVisibleShouts($offset = null, $limit = null)
+    private function qbNewestVisibleShouts($offset = null, $maxResults = null)
     {
-        $qb = $this->qbVisibleShouts($offset, $limit);
+        $qb = $this->qbVisibleShouts($offset, $maxResults);
 
         // TODO optimize query ordered by date and filtered by status, actually it does not use right indexes
 
@@ -66,12 +69,12 @@ class ShoutRepository extends EntityRepository
      * Get shouts approved ordered by created
      *
      * @param int $offset
-     * @param int $limit
+     * @param int $maxResults
      * @return array
      */
-    public function getNewestVisibleShouts($offset = 0, $limit = 10)
+    public function getNewestVisibleShouts($offset = 0, $maxResults = 10)
     {
-        return $this->qbNewestVisibleShouts($offset, $limit)
+        return $this->qbNewestVisibleShouts($offset, $maxResults)
             ->getQuery()
             ->getResult()
         ;
@@ -83,12 +86,12 @@ class ShoutRepository extends EntityRepository
      * @see http://gist.github.com/arnaud-lb/2704404 to force use index
      * @see https://doctrine-orm.readthedocs.org/en/latest/cookbook/dql-custom-walkers.html?highlight=setHint#generic-count-query-for-pagination
      * @param int $offset
-     * @param int $limit
+     * @param int $maxResults
      * @return \Doctrine\ORM\QueryBuilder
      */
-    private function qbTopRatedVisibleShouts($offset = null, $limit = null)
+    private function qbTopRatedVisibleShouts($offset = null, $maxResults = null)
     {
-        $qb = $this->qbVisibleShouts($offset, $limit);
+        $qb = $this->qbVisibleShouts($offset, $maxResults);
 
         // TODO optimize query ordered by total votes and filtered by status, actually it does not use right indexes
         return $qb
@@ -101,49 +104,72 @@ class ShoutRepository extends EntityRepository
      * Get visible shouts ordered by total votes
      *
      * @param int $offset
-     * @param int $limit
+     * @param int $maxResults
      * @return array
      */
-    public function getTopRatedVisibleShouts($offset = 0, $limit = 10)
+    public function getTopRatedVisibleShouts($offset = 0, $maxResults = 10)
     {
-        return $this->qbTopRatedVisibleShouts($offset, $limit)
+        return $this->qbTopRatedVisibleShouts($offset, $maxResults)
             ->getQuery()
             ->getResult()
         ;
     }
 
     /**
-     * Prepare a query builder for visible shouts ordered by distance to the coordinates
+     * Prepare a query for visible shouts ordered by distance to the coordinates
      *
-     * @param $latitude
-     * @param $longitude
+     * @param Point $point
      * @param int $offset
-     * @param int $limit
-     * @return \Doctrine\ORM\QueryBuilder
+     * @param int $maxResults
+     * @return \Doctrine\ORM\NativeQuery
      */
-    private function qbNearbyVisibleShouts($latitude, $longitude, $offset = null, $limit = null)
+    private function queryNearbyVisibleShouts(Point $point, $offset = null, $maxResults = null)
     {
-        $qb = $this->qbVisibleShouts($offset, $limit);
+        $rsm = new ResultSetMapping();
+        $rsm->addEntityResult('Prunatic\WebBundle\Entity\Shout', 's');
+        $fields = $this->_em->getClassMetadata('Prunatic\WebBundle\Entity\Shout')->getFieldNames();
+        foreach ($fields as $field) {
+            $rsm->addFieldResult('s', $field, $field);
+        }
 
-        // TODO incomplete: implement a search by point and near results
-        return $qb;
+        $sql = "
+            SELECT s.*
+            FROM Shout s
+            WHERE s.status IN('approved')
+            ORDER BY GLength(LineString(s.point, GeomFromText(:coordinates))) * 100
+            "
+        ;
+        $limit = '';
+        if (!is_null($maxResults))
+            $limit .= $maxResults;
+        if (!is_null($offset))
+            $limit .= ' OFFSET ' . $offset;
+        if (!empty($maxResults))
+            $limit = ' LIMIT ' . $maxResults;
+        $sql .= $limit;
+
+        $query = $this->_em->createNativeQuery($sql, $rsm);
+
+        $pointType = Type::getType('point');
+        $coordinates = $pointType->convertToDatabaseValue($point, $this->_em->getConnection()->getDatabasePlatform());
+        $query->setParameter('coordinates', $coordinates);
+
+        return $query;
     }
 
     /**
      * Get nearby visible shouts from a given coordinates
      *
-     * @param $latitude
-     * @param $longitude
+     * @param Point $point
      * @param int $offset
-     * @param int $limit
+     * @param int $maxResults
      * @return array
      */
-    public function getNearbyVisibleShouts($latitude, $longitude, $offset = null, $limit = null)
+    public function getNearbyVisibleShouts(Point $point, $offset = 0, $maxResults = 10)
     {
-        return $this->qbNearbyVisibleShouts($latitude, $longitude, $offset = null, $limit = null)
-            ->getQuery()
+        return $this
+            ->queryNearbyVisibleShouts($point, $offset, $maxResults)
             ->getResult()
-            ;
-
+        ;
     }
 }
