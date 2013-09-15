@@ -67,12 +67,12 @@ prunatic_shout_nearby:
         id:  \d+
 
 prunatic_rank_show_by_city:
-    pattern:  /ranking/{country}-{province}-{city}.html
+    pattern:  /ranking/{country}/{province}/{city}.html
     defaults: {_controller: PrunaticWebBundle:Rank:showByCity }
     methods: GET
 
 prunatic_rank_show_by_province:
-    pattern:  /ranking/{country}-{province}.html
+    pattern:  /ranking/{country}/{province}.html
     defaults: {_controller: PrunaticWebBundle:Rank:showByProvince }
     methods: GET
 
