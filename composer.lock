@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "cd44be9ce4c091c6e3d9ee7534168c45",
+    "hash": "122a2d28ce2104b83b63395a90f2623d",
     "packages": [
         {
             "name": "behat/behat",
@@ -1894,16 +1894,16 @@
         },
         {
             "name": "symfony/symfony",
-            "version": "v2.3.4",
+            "version": "v2.3.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/symfony.git",
-                "reference": "4fb225f4e315c11aa6d8935b1c0ceaf48ba39f1f"
+                "reference": "17aefe6c8ec9462dbfb3ef092f54c4e853861810"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/symfony/zipball/4fb225f4e315c11aa6d8935b1c0ceaf48ba39f1f",
-                "reference": "4fb225f4e315c11aa6d8935b1c0ceaf48ba39f1f",
+                "url": "https://api.github.com/repos/symfony/symfony/zipball/17aefe6c8ec9462dbfb3ef092f54c4e853861810",
+                "reference": "17aefe6c8ec9462dbfb3ef092f54c4e853861810",
                 "shasum": ""
             },
             "require": {
@@ -1998,7 +1998,7 @@
             "keywords": [
                 "framework"
             ],
-            "time": "2013-08-27 08:58:24"
+            "time": "2013-08-07 17:11:16"
         },
         {
             "name": "twbs/bootstrap",

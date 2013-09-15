@@ -6,6 +6,9 @@
 namespace Prunatic\WebBundle\Tests\Entity;
 
 use Prunatic\WebBundle\Entity\Shout;
+use Prunatic\WebBundle\Entity\City;
+use Prunatic\WebBundle\Entity\Province;
+use Prunatic\WebBundle\Entity\Country;
 use \InvalidArgumentException as InvalidArgumentException;
 use Prunatic\WebBundle\Service\NotificationManager;
 use \Swift_Mailer as Swift_Mailer;
@@ -13,7 +16,9 @@ use Symfony\Component\Routing\Generator\UrlGenerator;
 
 class ShoutTest extends \PHPUnit_Framework_TestCase
 {
-    // report issues
+    /**
+     * @covers \Prunatic\WebBundle\Entity\Shout::reportInappropriate
+     */
     public function testReportInappropriateOnce()
     {
         $shout = new Shout();
@@ -23,6 +28,9 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(1, count($shout->getReports()));
     }
 
+    /**
+     * @covers \Prunatic\WebBundle\Entity\Shout::reportInappropriate
+     */
     public function testReportInappropriateWithoutStatusChange()
     {
         $shout = new Shout();
@@ -35,6 +43,9 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($status, $shout->getStatus());
     }
 
+    /**
+     * @covers \Prunatic\WebBundle\Entity\Shout::reportInappropriate
+     */
     public function testReportInappropriateWithStatusChange()
     {
         $shout = new Shout();
@@ -48,6 +59,7 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers \Prunatic\WebBundle\Entity\Shout::reportInappropriate
      * @expectedException \Prunatic\WebBundle\Entity\DuplicateException
      */
     public function testThrowsDuplicateExceptionWhenReportInappropriateWithSameIpTwice()
@@ -58,7 +70,9 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
         $shout->reportInappropriate($ip);
     }
 
-    // votes issues
+    /**
+     * @covers \Prunatic\WebBundle\Entity\Shout::vote
+     */
     public function testAddManyVotes()
     {
         $shout = new Shout();
@@ -71,6 +85,9 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expectedVotes, count($shout->getVotes()));
     }
 
+    /**
+     * @covers \Prunatic\WebBundle\Entity\Shout::vote
+     */
     public function testTotalVotesIncrement()
     {
         $shout = new Shout();
@@ -80,6 +97,9 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(1, $shout->getTotalVotes());
     }
 
+    /**
+     * @covers \Prunatic\WebBundle\Entity\Shout::removeVote
+     */
     public function testTotalVotesDecrement()
     {
         $shout = new Shout();
@@ -95,6 +115,7 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers \Prunatic\WebBundle\Entity\Shout::vote
      * @expectedException \Prunatic\WebBundle\Entity\DuplicateException
      */
     public function testThrowsDuplicateExceptionWhenVoteWithSameIpTwice()
@@ -106,13 +127,19 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
         $shout->vote($ip);
     }
 
-    // status issues
+    /**
+     * @covers \Prunatic\WebBundle\Entity\Shout::__construct
+     */
     public function testDefaultStatusWhenCreate()
     {
         $shout = new Shout();
         $this->assertEquals(Shout::STATUS_NEW, $shout->getStatus());
     }
 
+    /**
+     * @covers \Prunatic\WebBundle\Entity\Shout::setStatus
+     * @covers \Prunatic\WebBundle\Entity\Shout::getStatus
+     */
     public function testAcceptOnlyValidStatus()
     {
         $availableStatus = array(
@@ -128,6 +155,7 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers \Prunatic\WebBundle\Entity\Shout::setStatus
      * @expectedException \InvalidArgumentException
      */
     public function testThrowsInvalidArgumentExceptionWhenInvalidStatus()
@@ -136,6 +164,9 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
         $shout->setStatus('test-invalid');
     }
 
+    /**
+     * @covers \Prunatic\WebBundle\Entity\Shout::canBeApproved
+     */
     public function testCanBeApprovedWithValidStatus()
     {
         $validStatus = array(Shout::STATUS_NEW);
@@ -146,6 +177,9 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    /**
+     * @covers \Prunatic\WebBundle\Entity\Shout::canBeApproved
+     */
     public function testCanBeApprovedWithInvalidStatus()
     {
         $invalidStatus = array(Shout::STATUS_APPROVED, Shout::STATUS_INAPPROPRIATE);
@@ -156,6 +190,9 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    /**
+     * @covers \Prunatic\WebBundle\Entity\Shout::approve
+     */
     public function testApprove()
     {
         $shout = new Shout();
@@ -166,6 +203,7 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers \Prunatic\WebBundle\Entity\Shout::approve
      * @expectedException \Prunatic\WebBundle\Entity\OperationNotPermittedException
      */
     public function testThrowsOperationNotPermittedExceptionWhenApprovingWithNoValidStatus()
@@ -176,6 +214,9 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
         $shout->approve();
     }
 
+    /**
+     * @covers \Prunatic\WebBundle\Entity\Shout::isVisible
+     */
     public function testIsVisible()
     {
         $visibleStatus = array(Shout::STATUS_APPROVED);
@@ -186,6 +227,9 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    /**
+     * @covers \Prunatic\WebBundle\Entity\Shout::isVisible
+     */
     public function testIsNotVisible()
     {
         $noVisibleStatus = array(Shout::STATUS_NEW, Shout::STATUS_INAPPROPRIATE);
@@ -196,6 +240,9 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    /**
+     * @covers \Prunatic\WebBundle\Entity\Shout::canBeRequestedForRemoval
+     */
     public function testCanBeRequestedForRemoval()
     {
         $validStatus = array(Shout::STATUS_NEW, Shout::STATUS_APPROVED, Shout::STATUS_INAPPROPRIATE);
@@ -206,7 +253,9 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    // Removal issues
+    /**
+     * @covers \Prunatic\WebBundle\Entity\Shout::requestRemoval
+     */
     public function testRequestRemoval()
     {
         // Set up mocks for services being used
@@ -232,7 +281,36 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
         $this->assertNotEmpty($shout->getToken(), 'The token should not be empty after request for removal');
     }
 
-    // token issues
+    /**
+     * @covers \Prunatic\WebBundle\Entity\Shout::getProvince
+     */
+    public function testGetProvince()
+    {
+        $province = new Province();
+        $city = new City();
+        $city->setProvince($province);
+        $shout = new Shout();
+        $shout->setCity($city);
+
+        $this->assertSame($province, $shout->getProvince());
+    }
+
+    /**
+     * @covers \Prunatic\WebBundle\Entity\Shout::getCountry
+     */
+    public function testGetCountry()
+    {
+        $country = new Country();
+        $province = new Province();
+        $province->setCountry($country);
+        $city = new City();
+        $city->setProvince($province);
+        $shout = new Shout();
+        $shout->setCity($city);
+
+        $this->assertSame($country, $shout->getCountry());
+    }
+
     public function testTokenUnique()
     {
         $this->markTestSkipped('
@@ -240,7 +318,6 @@ class ShoutTest extends \PHPUnit_Framework_TestCase
             ');
     }
 
-    // helpers
     /**
      * Generate a fake IP based on param $i
      *

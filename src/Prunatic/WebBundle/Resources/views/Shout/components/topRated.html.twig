@@ -5,7 +5,7 @@
             <div class="thumbnail span11">
                 <div class="span6">
                     <a href="{{ path('prunatic_shout_show', {'id' : shout.id}) }}" title="Ves al crit">
-                        <img src="http://placehold.it/140x140" class="img-rounded" alt="{{ shout.message }}">
+                        <img src="{{ shout.image ? asset(shout.image) : 'http://placehold.it/140x140' }}" class="img-rounded smallImage" alt="{{ shout.message }}">
                     </a>
                 </div>
                 <div class="span6">

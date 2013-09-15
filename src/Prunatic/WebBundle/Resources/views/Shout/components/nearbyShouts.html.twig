@@ -11,7 +11,7 @@
                         </a>
                     </p>
                 </div>
-                <img src="http://placehold.it/140x140" class="img-rounded" alt="{{ shout.message }}">
+                <img src="{{ shout.image ? asset(shout.image) : 'http://placehold.it/140x140' }}" class="img-rounded smallImage" alt="{{ shout.message }}">
             </div>
         </li>
     {% endfor %}

@@ -5,60 +5,12 @@
 
 namespace Prunatic\WebBundle\Tests\Entity;
 
-use Doctrine\ORM\EntityManager;
+use Prunatic\WebBundle\Tests\Entity\BaseRepositoryTest;
 use Prunatic\WebBundle\Entity\Point;
 use Prunatic\WebBundle\Entity\Shout;
-use Symfony\Bundle\FrameworkBundle\Console\Application;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\Console\Input\ArrayInput;
 
-class ShoutRepositoryTest extends WebTestCase
+class ShoutRepositoryTest extends BaseRepositoryTest
 {
-    /**
-     * @var EntityManager
-     */
-    private $em;
-
-    private $application;
-
-    /**
-     * {@inheritDoc}
-     */
-    public function setUp()
-    {
-        static::$kernel = static::createKernel();
-        static::$kernel->boot();
-
-        // init application to be able to run console commands
-        $this->application = new Application(static::$kernel);
-        $this->application->setAutoExit(false);
-
-        // clear test database
-        $this->runConsole("doctrine:schema:drop", array("--force" => true));
-        $this->runConsole("doctrine:schema:create");
-        //$this->runConsole("doctrine:fixtures:load", array("--fixtures" => __DIR__ . "/../DataFixtures"));
-
-        $this->em = static::$kernel->getContainer()
-            ->get('doctrine')
-            ->getManager()
-        ;
-    }
-
-    /**
-     * Use application object to run console commands
-     *
-     * @param $command
-     * @param array $options
-     * @return mixed
-     */
-    protected function runConsole($command, Array $options = array())
-    {
-        $options["--env"] = "test";
-        $options["-q"] = null;
-        $options = array_merge($options, array('command' => $command));
-        return $this->application->run(new ArrayInput($options));
-    }
-
     public function testEmptyShouts()
     {
         $shouts = $this->em
@@ -209,14 +161,5 @@ class ShoutRepositoryTest extends WebTestCase
             $this->assertGreaterThanOrEqual($previousDistance, $distance, 'Ensure that shouts are ordered by distance');
             $previousDistance = $distance;
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    protected function tearDown()
-    {
-        parent::tearDown();
-        $this->em->close();
     }
 }

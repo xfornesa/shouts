@@ -6,6 +6,9 @@
 namespace Prunatic\WebBundle\Tests\Controller;
 
 use Prunatic\WebBundle\Entity\Shout;
+use Prunatic\WebBundle\Entity\City;
+use Prunatic\WebBundle\Entity\Province;
+use Prunatic\WebBundle\Entity\Country;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Bundle\SwiftmailerBundle\DataCollector\MessageDataCollector;
 use Prunatic\WebBundle\Service\NotificationManager;
@@ -28,9 +31,30 @@ class ShoutControllerTest extends WebTestCase
 
         // TODO extract common mock definitions to methods
         // First, set up a shout mock
+        $country = new Country();
+        $country
+            ->setName('Country')
+            ->setSlug('country')
+        ;
+
+        $province = new Province();
+        $province
+            ->setCountry($country)
+            ->setName('Province')
+            ->setSlug('province')
+        ;
+
+        $city = new City();
+        $city
+            ->setProvince($province)
+            ->setName('City')
+            ->setSlug('city')
+        ;
+
+        //shout
         $shoutId = 1;
         $shout = $this->getMockBuilder('\Prunatic\WebBundle\Entity\Shout')
-            ->setMethods(array('getId', 'getAuthor', 'getEmail', 'getMessage', 'getLongitude', 'getLatitude', 'isVisible'))
+            ->setMethods(array('getId', 'getAuthor', 'getEmail', 'getMessage', 'getLongitude', 'getLatitude', 'isVisible', 'getCity', 'getProvince', 'getCountry'))
             ->getMock();
         $shout->expects($this->any())
             ->method('getId')
@@ -53,6 +77,15 @@ class ShoutControllerTest extends WebTestCase
         $shout->expects($this->any())
             ->method('isVisible')
             ->will($this->returnValue(true));
+        $shout->expects($this->any())
+            ->method('getCity')
+            ->will($this->returnValue($city));
+        $shout->expects($this->any())
+            ->method('getProvince')
+            ->will($this->returnValue($province));
+        $shout->expects($this->any())
+            ->method('getCountry')
+            ->will($this->returnValue($country));
 
         // Now, mock the repository so it returns the mock of the shout
         $shoutRepository = $this->getMockBuilder('\Doctrine\ORM\EntityRepository')
@@ -90,7 +123,7 @@ class ShoutControllerTest extends WebTestCase
         $client->request('GET', $url);
 
         // Assert that the response status code is 2XX
-        $this->assertTrue($client->getResponse()->isSuccessful(), 'Ensure that HTTP status code is 2XX');
+        $this->assertTrue($client->getResponse()->isSuccessful(), sprintf('Ensure that HTTP status code is 2XX, current response is : %s', $client->getResponse()->getStatusCode()));
 
     }
 

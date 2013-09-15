@@ -65,3 +65,18 @@ prunatic_shout_nearby:
     methods: GET
     requirements:
         id:  \d+
+
+prunatic_rank_show_by_city:
+    pattern:  /ranking/{country}-{province}-{city}.html
+    defaults: {_controller: PrunaticWebBundle:Rank:showByCity }
+    methods: GET
+
+prunatic_rank_show_by_province:
+    pattern:  /ranking/{country}-{province}.html
+    defaults: {_controller: PrunaticWebBundle:Rank:showByProvince }
+    methods: GET
+
+prunatic_rank_show_by_country:
+    pattern:  /ranking/{country}.html
+    defaults: {_controller: PrunaticWebBundle:Rank:showByCountry }
+    methods: GET

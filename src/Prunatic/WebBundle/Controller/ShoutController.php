@@ -8,6 +8,7 @@ namespace Prunatic\WebBundle\Controller;
 use Prunatic\WebBundle\Entity\DuplicateException;
 use Prunatic\WebBundle\Entity\OperationNotPermittedException;
 use Prunatic\WebBundle\Entity\Shout;
+use Prunatic\WebBundle\Entity\ShoutRepository;
 use Prunatic\WebBundle\Entity\Vote;
 use Prunatic\WebBundle\Service\NotificationManager;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -188,9 +189,7 @@ class ShoutController extends Controller
 
     public function newestAction()
     {
-        $shouts = $this->getDoctrine()
-            ->getRepository('PrunaticWebBundle:Shout')
-            ->getNewestVisibleShouts()
+        $shouts = $this->getShoutRepository()->getNewestVisibleShouts()
         ;
 
         return $this->render('PrunaticWebBundle:Shout:components/newest.html.twig', array(
@@ -200,9 +199,7 @@ class ShoutController extends Controller
 
     public function topRatedAction()
     {
-        $shouts = $this->getDoctrine()
-            ->getRepository('PrunaticWebBundle:Shout')
-            ->getTopRatedVisibleShouts()
+        $shouts = $this->getShoutRepository()->getTopRatedVisibleShouts(0, 5)
         ;
 
         return $this->render('PrunaticWebBundle:Shout:components/topRated.html.twig', array(
@@ -217,14 +214,8 @@ class ShoutController extends Controller
             throw $this->createNotFoundException(sprintf("El crit demanat amb id %s no està disponible", $id));
         }
 
-        $shouts = $this->getDoctrine()
-            ->getRepository('PrunaticWebBundle:Shout')
-            ->getNearbyVisibleShouts($shout->getPoint())
-        ;
-
         return $this->render('PrunaticWebBundle:Shout:components/showMap.html.twig', array(
             'shout' => $shout,
-            'shouts' => $shouts,
         ));
     }
 
@@ -235,9 +226,7 @@ class ShoutController extends Controller
             throw $this->createNotFoundException(sprintf("El crit demanat amb id %s no està disponible", $id));
         }
 
-        $shouts = $this->getDoctrine()
-            ->getRepository('PrunaticWebBundle:Shout')
-            ->getNearbyVisibleShouts($shout->getPoint())
+        $shouts = $this->getShoutRepository()->getNearbyVisibleShouts($shout->getPoint(), 0, 12)
         ;
 
         return $this->render('PrunaticWebBundle:Shout:components/nearbyShouts.html.twig', array(
@@ -255,9 +244,7 @@ class ShoutController extends Controller
      */
     private function getShoutByIdOrNotFoundException($id)
     {
-        $shout = $this->getDoctrine()
-            ->getRepository('PrunaticWebBundle:Shout')
-            ->find($id);
+        $shout = $this->getShoutRepository()->find($id);
         if (!$shout) {
             throw $this->createNotFoundException(sprintf("No hem trobat el crit demanat amb l'id %s", $id));
         }
@@ -274,13 +261,19 @@ class ShoutController extends Controller
      */
     private function getShoutByTokenOrNotFoundException($token)
     {
-        $shout = $this->getDoctrine()
-            ->getRepository('PrunaticWebBundle:Shout')
-            ->findOneByToken($token);
+        $shout = $this->getShoutRepository()->findOneByToken($token);
         if (!$shout) {
             throw $this->createNotFoundException(sprintf('No hem trobat el crit demanat amd el token %s', $token));
         }
 
         return $shout;
+    }
+
+    /**
+     * @return ShoutRepository
+     */
+    private function getShoutRepository()
+    {
+        return $this->getDoctrine()->getRepository('PrunaticWebBundle:Shout');
     }
 }

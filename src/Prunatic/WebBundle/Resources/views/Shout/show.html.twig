@@ -9,7 +9,7 @@
         <div class="row-fluid">
             <div class="span7">
                 <div class="row-fluid">
-                    <img src="{{ asset(shout.image) | default('http://placehold.it/700x525') }}" alt="{{ shout.message }}">
+                    <img src="{{ shout.image ? asset(shout.image) : 'http://placehold.it/700x525' }}" class="img-rounded" alt="{{ shout.message }}">
                 </div>
                 <div class="row-fluid">
                     <ul class="inline paddingTop3">
@@ -36,9 +36,9 @@
                 <div class="row-fluid">
                     <div class="span6">
                         <p class="author">Per: {{ shout.author }}</p>
-                        <p class="city">Població: {{ shout.city | default('Mataró') }}</p>
-                        <p class="province">Província: {{ shout.province | default('Barcelona') }}</p>
-                        <p class="country">País: {{ shout.country | default('Catalunya') }}</p>
+                        <p class="city">Població: <a href="{{ path('prunatic_rank_show_by_city', {'country': shout.country.slug, 'province': shout.province.slug, 'city': shout.city.slug}) }}" title="Veure el ranking per {{ shout.city.name }}">{{ shout.city.name }}</a></p>
+                        <p class="province">Província: <a href="{{ path('prunatic_rank_show_by_province', {'country': shout.country.slug , 'province': shout.province.slug}) }}" title="Veure el ranking per {{ shout.province.name }}">{{ shout.province.name }}</a></p>
+                        <p class="country">País: <a href="{{ path('prunatic_rank_show_by_country', {'country': shout.country.slug}) }}" title="Veure el ranking per {{ shout.country.name }}">{{ shout.country.name }}</a></p>
                     </div>
                     <div class="span6">
                         {% render url('prunatic_shout_show_map', {'id': shout.id}) %}

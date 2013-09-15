@@ -6,13 +6,22 @@
 namespace Prunatic\WebBundle\DataFixtures\ORM;
 
 use Doctrine\Common\DataFixtures\FixtureInterface;
+use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Prunatic\WebBundle\Entity\Shout;
 use Prunatic\WebBundle\Entity\Vote;
 use Prunatic\WebBundle\Entity\Point;
 
-class LoadShoutData implements FixtureInterface
+class LoadShoutData implements FixtureInterface, OrderedFixtureInterface
 {
+    /**
+     * {@inheritDoc}
+     */
+    public function getOrder()
+    {
+        return 10;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -26,6 +35,8 @@ class LoadShoutData implements FixtureInterface
             'Hi han dos tipus de persones, els catalans i els que ho voldrien ser'
         );
 
+        $cities = $manager->getRepository('PrunaticWebBundle:City')->findAll();
+
         for ($i=0; $i<15; $i++) {
             $shout = new Shout();
             // basic fields
@@ -34,6 +45,8 @@ class LoadShoutData implements FixtureInterface
                 ->setEmail(sprintf('email.%s@elmeucrit.cat', $i))
                 ->setAuthor(sprintf('Author %s', $i))
                 ->setMessage($messages[rand(0, count($messages)-1)])
+                ->setImage(sprintf('/uploads/sample%s.jpg', rand(1,4)))
+                ->setCity($cities[rand(0,count($cities)-1)])
                 ->setPoint($point)
                 ->approve()
             ;

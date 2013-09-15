@@ -19,28 +19,28 @@ use Prunatic\WebBundle\Entity\OperationNotPermittedException;
 use Prunatic\WebBundle\Entity\Report;
 use Prunatic\WebBundle\Entity\Vote;
 use Prunatic\WebBundle\Entity\Point;
+use Prunatic\WebBundle\Entity\City;
+use Prunatic\WebBundle\Entity\Province;
+use Prunatic\WebBundle\Entity\Country;
 
 /**
  * Shout
  *
  * @ORM\Table(indexes={
- *     @ORM\Index(name="shout_status_idx", columns={"status"}),
- *     @ORM\Index(name="shout_created_idx", columns={"created"}),
- *     @ORM\Index(name="shout_total_votes_idx", columns={"total_votes"})
+ *     @ORM\Index(name="idx_shout_status", columns={"status"}),
+ *     @ORM\Index(name="idx_shout_created", columns={"created"}),
+ *     @ORM\Index(name="idx_shout_total_votes", columns={"total_votes"})
  * })
  * @ORM\Entity(repositoryClass="Prunatic\WebBundle\Entity\ShoutRepository")
  * @Gedmo\Uploadable(allowOverwrite=true, filenameGenerator="SHA1")
  */
 class Shout
 {
-    // TODO Consider to move this field to a configuration file
     const MIN_REPORTS = 2;
 
     const STATUS_NEW = 'new';
     const STATUS_APPROVED = 'approved';
     const STATUS_INAPPROPRIATE = 'inappropriate';
-
-    // TODO add country, province and city fields
 
     /**
      * @var integer
@@ -129,6 +129,14 @@ class Shout
      * @ORM\Column(name="token", type="string", length=255, unique=true, nullable=true)
      */
     private $token;
+
+    /**
+     * @var City
+     *
+     * @ORM\ManyToOne(targetEntity="City")
+     * @ORM\JoinColumn(name="city_id", referencedColumnName="id", nullable=true)
+     */
+    private $city;
 
     /**
      * @var \DateTime
@@ -595,38 +603,6 @@ class Shout
     }
 
     /**
-     * Sends an email to the author to confirm the shout removal
-     *
-     * @param Swift_Mailer $mailer
-     * @param string $url Absolute url to confirm shout removal
-     * @return bool
-     */
-    private function sendRemovalConfirmationEmail(Swift_Mailer $mailer, $url)
-    {
-        // TODO get data from configuration
-        $subject = 'Confirmació per silenciar un crit';
-        $from = 'send@example.com';
-        $to = $this->getEmail();
-
-        // TODO render body with a template
-        $body = <<<EOF
-            Hola, si us play fes clic aquí per confirmar que vols silenciar el teu crit:
-            <a href="{$url}">{$url}</a>
-EOF;
-
-        $message = \Swift_Message::newInstance()
-            ->setSubject($subject)
-            ->setFrom($from)
-            ->setTo($to)
-            ->setBody($body);
-        ;
-
-        $i_recipients = $mailer->send($message);
-
-        return $i_recipients > 0;
-    }
-
-    /**
      * Return if a shout is visible
      *
      * @return bool
@@ -658,5 +634,49 @@ EOF;
     public function getTotalVotes()
     {
         return $this->totalVotes;
+    }
+
+
+    /**
+     * Set city
+     *
+     * @param City $city
+     * @return Shout
+     */
+    public function setCity(City $city = null)
+    {
+        $this->city = $city;
+    
+        return $this;
+    }
+
+    /**
+     * Get city
+     *
+     * @return City
+     */
+    public function getCity()
+    {
+        return $this->city;
+    }
+
+    /**
+     * Get province
+     *
+     * @return Province
+     */
+    public function getProvince()
+    {
+        return $this->getCity()->getProvince();
+    }
+
+    /**
+     * Get country
+     *
+     * @return Country
+     */
+    public function getCountry()
+    {
+        return $this->getProvince()->getCountry();
     }
 }

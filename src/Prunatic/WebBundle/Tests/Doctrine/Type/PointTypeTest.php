@@ -23,7 +23,9 @@ class PointTypeTest extends \PHPUnit_Framework_TestCase
 
     public static function setUpBeforeClass()
     {
-        Type::addType('point', 'Prunatic\WebBundle\Doctrine\Type\PointType');
+        if (!Type::hasType('point')) {
+            Type::addType('point', 'Prunatic\WebBundle\Doctrine\Type\PointType');
+        }
     }
 
     protected function setUp()
