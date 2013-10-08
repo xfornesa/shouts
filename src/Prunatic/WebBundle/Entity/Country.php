@@ -5,9 +5,11 @@
 
 namespace Prunatic\WebBundle\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
+use Prunatic\WebBundle\Entity\Province;
 
 /**
  * Report
@@ -43,6 +45,13 @@ class Country
      * @Assert\NotBlank()
      */
     private $slug;
+
+    /**
+     * @var ArrayCollection
+     *
+     * @ORM\OneToMany(targetEntity="Province", mappedBy="country")
+     */
+    private $provinces;
 
     /**
      * Get id
@@ -98,5 +107,45 @@ class Country
     public function getSlug()
     {
         return $this->slug;
+    }
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->provinces = new ArrayCollection();
+    }
+    
+    /**
+     * Add provinces
+     *
+     * @param Province $provinces
+     * @return Country
+     */
+    public function addProvince(Province $provinces)
+    {
+        $this->provinces[] = $provinces;
+    
+        return $this;
+    }
+
+    /**
+     * Remove provinces
+     *
+     * @param Province $provinces
+     */
+    public function removeProvince(Province $provinces)
+    {
+        $this->provinces->removeElement($provinces);
+    }
+
+    /**
+     * Get provinces
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getProvinces()
+    {
+        return $this->provinces;
     }
 }

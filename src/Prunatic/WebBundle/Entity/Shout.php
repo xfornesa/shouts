@@ -29,7 +29,9 @@ use Prunatic\WebBundle\Entity\Country;
  * @ORM\Table(indexes={
  *     @ORM\Index(name="idx_shout_status", columns={"status"}),
  *     @ORM\Index(name="idx_shout_created", columns={"created"}),
- *     @ORM\Index(name="idx_shout_total_votes", columns={"total_votes"})
+ *     @ORM\Index(name="idx_shout_total_votes", columns={"total_votes"}),
+ *     @ORM\Index(name="idx_shout_point", columns={"point"}),
+ *     @ORM\Index(name="idx_shout_token", columns={"token"})
  * })
  * @ORM\Entity(repositoryClass="Prunatic\WebBundle\Entity\ShoutRepository")
  * @Gedmo\Uploadable(allowOverwrite=true, filenameGenerator="SHA1")

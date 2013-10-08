@@ -15,16 +15,25 @@ use Prunatic\WebBundle\Service\NotificationManager;
 
 class ShoutControllerTest extends WebTestCase
 {
+    /**
+     * @covers Prunatic\WebBundle\Controller\ShoutController::createAction
+     */
     public function testCreate()
     {
         $this->markTestIncomplete('TODO functional test of creating a shout');
     }
 
+    /**
+     * @covers Prunatic\WebBundle\Controller\ShoutController::createAction
+     */
     public function testCreateValidations()
     {
         $this->markTestIncomplete('TODO functional test of creating a shout without completing all fields in the form');
     }
 
+    /**
+     * @covers Prunatic\WebBundle\Controller\ShoutController::showAction
+     */
     public function testShowWhenIsVisible()
     {
         $client = static::createClient();
@@ -127,6 +136,9 @@ class ShoutControllerTest extends WebTestCase
 
     }
 
+    /**
+     * @covers Prunatic\WebBundle\Controller\ShoutController::showAction
+     */
     public function testShowWhenIsNotVisible()
     {
         $client = static::createClient();
@@ -177,6 +189,9 @@ class ShoutControllerTest extends WebTestCase
         $this->assertTrue($client->getResponse()->isNotFound(), 'Ensure that HTTP status code is 404');
     }
 
+    /**
+     * @covers Prunatic\WebBundle\Controller\ShoutController::showAction
+     */
     public function testShowWithNonExistentShout()
     {
         $client = static::createClient();
@@ -222,6 +237,9 @@ class ShoutControllerTest extends WebTestCase
         $this->assertTrue($client->getResponse()->isNotFound(), 'Ensure that HTTP status code is 404');
     }
 
+    /**
+     * @covers Prunatic\WebBundle\Controller\ShoutController::requestRemovalAction
+     */
     public function testRequestRemoval()
     {
         $client = static::createClient();
@@ -309,6 +327,9 @@ class ShoutControllerTest extends WebTestCase
         $this->assertTrue($client->getResponse()->isSuccessful(), 'Ensure that HTTP status code is 200');
     }
 
+    /**
+     * @covers Prunatic\WebBundle\Controller\ShoutController::requestRemovalAction
+     */
     public function testRequestRemovalForNonExistentShout()
     {
         $client = static::createClient();
@@ -356,6 +377,9 @@ class ShoutControllerTest extends WebTestCase
         $this->assertTrue($client->getResponse()->isNotFound(), 'Ensure that HTTP status code is 404 not found');
     }
 
+    /**
+     * @covers Prunatic\WebBundle\Controller\ShoutController::requestRemovalAction
+     */
     public function testRequestRemovalWithShoutThatCanNotBeRequestedForRemoval()
     {
         $client = static::createClient();
@@ -408,6 +432,9 @@ class ShoutControllerTest extends WebTestCase
         $this->assertTrue($client->getResponse()->isServerError(), 'Ensure that HTTP status code is 500');
     }
 
+    /**
+     * @covers Prunatic\WebBundle\Controller\ShoutController::confirmRemovalAction
+     */
     public function testConfirmRemoval()
     {
         $this->markTestIncomplete('TODO complete confirm removal action for shout controller');

@@ -12,6 +12,8 @@
     {% endstylesheets %}
 {% endblock head_style %}
 
+{% block navbar %}{{ include('PrunaticWebBundle:Default:components/navbar.html.twig') }}{% endblock navbar %}
+
 {% block foot_script %}
     {# To only use a subset or add more js overwrite and copy paste this block
     To speed up page loads save a copy of jQuery in your project and override this block to include the correct path

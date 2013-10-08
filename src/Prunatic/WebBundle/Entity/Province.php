@@ -5,10 +5,12 @@
 
 namespace Prunatic\WebBundle\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 use Prunatic\WebBundle\Entity\Country;
+use Prunatic\WebBundle\Entity\City;
 
 /**
  * Report
@@ -39,7 +41,9 @@ class Province
     private $name;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Country")
+     * @var Country
+     *
+     * @ORM\ManyToOne(targetEntity="Country", inversedBy="provinces")
      * @ORM\JoinColumn(name="country_id", referencedColumnName="id")
      **/
     private $country;
@@ -52,6 +56,14 @@ class Province
      * @Assert\NotBlank()
      */
     private $slug;
+
+    /**
+     * @var ArrayCollection
+     *
+     * @ORM\OneToMany(targetEntity="City", mappedBy="province")
+     */
+    private $cities;
+
 
     /**
      * Get id
@@ -89,10 +101,10 @@ class Province
     /**
      * Set country
      *
-     * @param \Prunatic\WebBundle\Entity\Country $country
+     * @param Country $country
      * @return Province
      */
-    public function setCountry(\Prunatic\WebBundle\Entity\Country $country = null)
+    public function setCountry(Country $country = null)
     {
         $this->country = $country;
     
@@ -102,7 +114,7 @@ class Province
     /**
      * Get country
      *
-     * @return \Prunatic\WebBundle\Entity\Country 
+     * @return Country
      */
     public function getCountry()
     {
@@ -130,5 +142,68 @@ class Province
     public function getSlug()
     {
         return $this->slug;
+    }
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->cities = new ArrayCollection();
+    }
+    
+    /**
+     * Add cities
+     *
+     * @param City $cities
+     * @return Province
+     */
+    public function addCity(City $cities)
+    {
+        $this->cities[] = $cities;
+    
+        return $this;
+    }
+
+    /**
+     * Remove cities
+     *
+     * @param City $cities
+     */
+    public function removeCity(City $cities)
+    {
+        $this->cities->removeElement($cities);
+    }
+
+    /**
+     * Get cities
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getCities()
+    {
+        return $this->cities;
+    }
+
+    /**
+     * Add cities
+     *
+     * @param \Prunatic\WebBundle\Entity\City $cities
+     * @return Province
+     */
+    public function addCitie(\Prunatic\WebBundle\Entity\City $cities)
+    {
+        $this->cities[] = $cities;
+    
+        return $this;
+    }
+
+    /**
+     * Remove cities
+     *
+     * @param \Prunatic\WebBundle\Entity\City $cities
+     */
+    public function removeCitie(\Prunatic\WebBundle\Entity\City $cities)
+    {
+        $this->cities->removeElement($cities);
     }
 }

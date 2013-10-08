@@ -41,7 +41,7 @@ class City
     /**
      * @var Province
      *
-     * @ORM\ManyToOne(targetEntity="Province")
+     * @ORM\ManyToOne(targetEntity="Province", inversedBy="cities")
      * @ORM\JoinColumn(name="province_id", referencedColumnName="id")
      **/
     private $province;
